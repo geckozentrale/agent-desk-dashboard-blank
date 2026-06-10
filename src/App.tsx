@@ -39,7 +39,16 @@ import {
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react'
 
 type ThemeMode = 'light' | 'dark' | 'charcoal'
-type PageId = 'dashboard' | 'chat' | 'control' | 'docs' | 'workflows' | 'logbook' | 'ideas' | 'website'
+type PageId =
+  | 'dashboard'
+  | 'chat'
+  | 'control'
+  | 'design'
+  | 'docs'
+  | 'workflows'
+  | 'logbook'
+  | 'ideas'
+  | 'website'
 type PanelId = 'today' | 'signals' | 'approvals' | 'website' | 'notes' | 'tasks'
 
 type NavItem = {
@@ -81,6 +90,7 @@ const navItems: NavItem[] = [
   { id: 'dashboard', title: 'Dashboard', detail: 'Tagesuebersicht', icon: LayoutDashboard },
   { id: 'chat', title: 'Chat', detail: 'Composer und Antworten', icon: MessageSquare },
   { id: 'control', title: 'Kontrolle', detail: 'Betrieb und Jobs', icon: Activity },
+  { id: 'design', title: 'Designsystem', detail: 'Farben, Icons, Cards', icon: Palette },
   { id: 'docs', title: 'Dokumentation', detail: 'Aufbau und Regeln', icon: BookOpen },
   { id: 'workflows', title: 'Workflows', detail: 'Ablaufsteuerung', icon: ListChecks },
   { id: 'logbook', title: 'Logbuch', detail: 'Nachweis und Verlauf', icon: ShieldCheck },
@@ -103,6 +113,7 @@ const pageTitle: Record<PageId, string> = {
   dashboard: 'Dashboard',
   chat: 'Chat',
   control: 'Kontrolle',
+  design: 'Designsystem',
   docs: 'Dokumentation',
   workflows: 'Workflows',
   logbook: 'Logbuch',
@@ -289,6 +300,8 @@ function renderPage(page: PageId) {
       return <ChatPage />
     case 'control':
       return <ControlPage />
+    case 'design':
+      return <DesignSystemPage />
     case 'docs':
       return <DocsPage />
     case 'workflows':
@@ -689,12 +702,12 @@ function ChatPage() {
 function ControlPage() {
   const [active, setActive] = useState('heartbeats')
   const categories = [
-    { id: 'heartbeats', title: 'Heartbeats', icon: Activity, count: 0 },
-    { id: 'cronjobs', title: 'Cronjobs', icon: CalendarClock, count: 0 },
-    { id: 'watchers', title: 'Waechter', icon: ShieldCheck, count: 0 },
-    { id: 'skills', title: 'Skills', icon: Code2, count: 0 },
-    { id: 'plugins', title: 'Plugins', icon: Sparkles, count: 0 },
-    { id: 'connections', title: 'Verbindungen', icon: Globe, count: 0 },
+    { id: 'heartbeats', title: 'Heartbeats', detail: 'laufende Lebenszeichen', icon: Activity, count: 0 },
+    { id: 'cronjobs', title: 'Cron Jobs', detail: 'geplante Hintergrundlaeufe', icon: CalendarClock, count: 0 },
+    { id: 'watchers', title: 'Waechter', detail: 'Beobachter und Worker', icon: ShieldCheck, count: 0 },
+    { id: 'skills', title: 'Skills', detail: 'aktiv und angewendet', icon: Code2, count: 0 },
+    { id: 'plugins', title: 'Plugins', detail: 'Plugin-Anschluesse', icon: Sparkles, count: 0 },
+    { id: 'connections', title: 'Verbindungen', detail: 'Dienste, Modelle, CLIs', icon: Globe, count: 0 },
   ]
 
   return (
@@ -703,7 +716,10 @@ function ControlPage() {
         {categories.map((item) => (
           <button key={item.id} type="button" aria-pressed={active === item.id} onClick={() => setActive(item.id)}>
             <item.icon size={17} />
-            <span>{item.title}</span>
+            <span>
+              <strong>{item.title}</strong>
+              <small>{item.detail}</small>
+            </span>
             <em>{item.count}</em>
           </button>
         ))}
@@ -728,9 +744,165 @@ function ControlPage() {
   )
 }
 
+function DesignSystemPage() {
+  const iconSamples = [
+    { title: 'Dashboard', detail: 'Startseite', icon: LayoutDashboard, tone: 'mint' },
+    { title: 'Chat', detail: 'Composer', icon: MessageSquare, tone: 'sky' },
+    { title: 'Kontrolle', detail: 'Betrieb', icon: Activity, tone: 'sage' },
+    { title: 'Dokumentation', detail: 'Handbuch', icon: BookOpen, tone: 'butter' },
+    { title: 'Workflows', detail: 'Pipeline', icon: ListChecks, tone: 'peach' },
+    { title: 'Logbuch', detail: 'Nachweis', icon: ShieldCheck, tone: 'rose' },
+    { title: 'Ziele', detail: 'Planung', icon: Target, tone: 'lavender' },
+    { title: 'Website', detail: 'Signale', icon: Globe, tone: 'sky' },
+  ]
+  const swatches = [
+    ['Mint', 'var(--pastel-mint)', '#c2e8d6'],
+    ['Sky', 'var(--pastel-sky)', '#c4ddee'],
+    ['Rose', 'var(--pastel-rose)', '#ecc4d0'],
+    ['Butter', 'var(--pastel-butter)', '#f3e0a8'],
+    ['Peach', 'var(--pastel-peach)', '#f5d2b8'],
+    ['Lavender', 'var(--pastel-lavender)', '#d8c4e6'],
+    ['Sage', 'var(--pastel-sage)', '#cfdcb6'],
+    ['Brand', 'var(--accent)', '#49a5a2'],
+  ]
+  const cardPatterns = [
+    ['KPI-Karte', 'Eine kleine Zahl, ein kurzer Titel, optional ein Pastell-Akzent.'],
+    ['Arbeitskarte', 'Wiederholbare Einheit fuer Aufgaben, Signale oder Status.'],
+    ['Freigabezone', 'Eigener, leicht getoenter Bereich fuer menschliche Entscheidungen.'],
+    ['Leerzustand', 'Ruhiger Hinweis statt Fehlermeldungsrauschen.'],
+  ]
+
+  return (
+    <section className="design-page">
+      <SectionIntro
+        eyebrow="Designvorgabe"
+        title="Icons, Farben, Cards und Seitennavigation."
+        text="Diese Seite sammelt die sichtbaren Bausteine der Blanko-Oberflaeche als wiederverwendbare Vorlage."
+      />
+
+      <div className="design-layout">
+        <aside className="design-sticky-nav">
+          <span>Bausteine</span>
+          {['Icons', 'Pastellfarben', 'Cards', 'Sticky Navigation'].map((item, index) => (
+            <a key={item} href={`#design-${index}`}>
+              <CircleDot size={14} />
+              {item}
+            </a>
+          ))}
+        </aside>
+
+        <div className="design-sections">
+          <section id="design-0" className="design-panel">
+            <header>
+              <h3>Icon-Set</h3>
+              <p>Alle Hauptbereiche nutzen Lucide-Icons mit duennem Strich. Die Farbe kommt aus dem jeweiligen Pastellton.</p>
+            </header>
+            <div className="icon-grid">
+              {iconSamples.map((item) => (
+                <article key={item.title} className="icon-card" data-tone={item.tone}>
+                  <span>
+                    <item.icon size={19} />
+                  </span>
+                  <strong>{item.title}</strong>
+                  <small>{item.detail}</small>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section id="design-1" className="design-panel">
+            <header>
+              <h3>Pastellfarben</h3>
+              <p>Pastellfarben sind Akzente, keine Flaechendominanz. Sie markieren Status, aktive Elemente und Sonderbereiche.</p>
+            </header>
+            <div className="swatch-grid">
+              {swatches.map(([name, value, hex]) => (
+                <article key={name} className="swatch-card">
+                  <span style={{ '--swatch': value } as CSSProperties} />
+                  <strong>{name}</strong>
+                  <small>{hex}</small>
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section id="design-2" className="design-panel">
+            <header>
+              <h3>Card-Aufbau</h3>
+              <p>Karten bleiben flach, klar gerahmt und maximal leicht gehoben. Radius und Linien sind bewusst klein gehalten.</p>
+            </header>
+            <div className="card-pattern-grid">
+              {cardPatterns.map(([title, text], index) => (
+                <article key={title} className="dashboard-card card-pattern">
+                  <header>
+                    <span>
+                      {index === 0 ? <Database size={18} /> : index === 1 ? <ClipboardList size={18} /> : index === 2 ? <ShieldCheck size={18} /> : <Sparkles size={18} />}
+                      {title}
+                    </span>
+                  </header>
+                  <p>{text}</p>
+                  {index === 0 ? (
+                    <div className="metric-grid">
+                      <Metric label="Wert" value="0" accent />
+                      <Metric label="Trend" value="0%" />
+                    </div>
+                  ) : null}
+                  {index === 2 ? (
+                    <div className="approval-zone">
+                      <ShieldCheck size={18} />
+                      <div>
+                        <strong>Freigabe</strong>
+                        <p>Aktionen bleiben sichtbar blockiert.</p>
+                      </div>
+                    </div>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </section>
+
+          <section id="design-3" className="design-panel">
+            <header>
+              <h3>Sticky Seitennavigation</h3>
+              <p>Unterseiten mit Kategorien nutzen links eine zweite Navigation, die beim Scrollen stehen bleibt.</p>
+            </header>
+            <div className="sticky-demo">
+              <aside className="section-nav section-nav--demo">
+                {[
+                  ['Heartbeats', Activity],
+                  ['Cron Jobs', CalendarClock],
+                  ['Waechter', ShieldCheck],
+                  ['Skills', Code2],
+                ].map(([label, Icon], index) => {
+                  const DemoIcon = Icon as LucideIcon
+                  return (
+                    <button key={label as string} type="button" aria-pressed={index === 1}>
+                      <DemoIcon size={17} />
+                      <span>
+                        <strong>{label as string}</strong>
+                        <small>Beispielbereich</small>
+                      </span>
+                      <em>0</em>
+                    </button>
+                  )
+                })}
+              </aside>
+              <div className="content-panel sticky-demo__content">
+                <BlankRow label="Rechte Detailflaeche mit Karten, Tabellen oder Leerzustaenden" />
+                <BlankRow label="Die linke Auswahl bleibt beim Scrollen sichtbar" />
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function DocsPage() {
   const sections = [
     ['Design', 'Pastel V2 nutzt einen charcoal Grund, helle Schrift und Pastellfarben nur fuer Akzente, Status und wichtige Karten.'],
+    ['Designsystem', 'Icons, Pastellfarben, Card-Muster und Sticky-Seitennavigation sind als eigene Vorlage sichtbar.'],
     ['Shell', 'Links steht die Navigation. Oben zeigt die Kopfzeile Seite, Zustand und globale Aktionen. Die Seitenflaeche bleibt ruhig und dicht.'],
     ['Dashboard', 'Die Startseite besteht aus frei sortierbaren Kacheln. Nutzer koennen Kacheln entfernen, hinzufuegen, fixieren und zuruecksetzen.'],
     ['Chat', 'Der Chat zeigt lokale Nachrichten, simuliertes Streaming, Prozessanzeige, Composer und Freigabehinweise ohne API-Verbindung.'],

@@ -47,6 +47,7 @@ Seiten in dieser Blanko-Version:
 - Dashboard
 - Chat
 - Kontrolle
+- Designsystem
 - Dokumentation
 - Workflows
 - Logbuch
@@ -56,6 +57,47 @@ Seiten in dieser Blanko-Version:
 Das echte Muster sieht Systemseiten wie Kontrolle, Dokumentation, Workflows und Logbuch als zusammenhaengenden Block. Cronjobs sind dabei kein eigener Navigationspunkt, sondern ein Reiter innerhalb der Kontrollseite.
 
 Auf kleinen Bildschirmen wird die Sidebar durch ein Drawer-Menue ersetzt.
+
+## Icons und Pastellfarben
+
+Das Repo enthaelt die Icon-Vorgaben direkt in der Oberflaeche auf der Designsystem-Seite. Die Vorlage nutzt Lucide-Icons mit ruhigem, duennem Strich und kleinen Icon-Kacheln. Die Icons sind keine dekorativen Bilder, sondern dienen der Wiedererkennung von Bereichen und Aktionen.
+
+Haupticons:
+
+- Dashboard: LayoutDashboard
+- Chat: MessageSquare
+- Kontrolle: Activity
+- Dokumentation: BookOpen
+- Workflows: ListChecks
+- Logbuch: ShieldCheck
+- Ziele & Ideen: Target
+- Website Tracking: Globe
+
+Die Pastellfarben liegen als CSS-Tokens vor und sind auf der Designsystem-Seite sichtbar:
+
+- Mint: #c2e8d6
+- Sky: #c4ddee
+- Rose: #ecc4d0
+- Butter: #f3e0a8
+- Peach: #f5d2b8
+- Lavender: #d8c4e6
+- Sage: #cfdcb6
+- Brand: #49a5a2
+
+Die Regel: Ein Icon oder eine Karte darf einen Pastellakzent tragen, aber eine ganze Seite soll nicht vollflaechig in einer Pastellfarbe liegen. Pastell ist Signal, nicht Hintergrundtapete.
+
+## Cards und zweite Seitennavigation
+
+Karten sind die wiederkehrenden Arbeitseinheiten des Dashboards. Sie haben klare Linien, kleine Radien, wenig Schatten und kurze Inhalte. Eine Karte soll scannbar bleiben: Titel, optionales Icon, kurze Beschreibung, dann Werte, Liste oder Leerzustand.
+
+Card-Muster:
+
+- KPI-Karte fuer Kennzahlen
+- Arbeitskarte fuer Aufgaben, Signale oder Status
+- Freigabezone fuer menschliche Entscheidungen
+- Leerzustand fuer noch nicht verbundene Bereiche
+
+Unterseiten mit vielen Kategorien nutzen eine zweite Seitennavigation links im Inhaltsbereich. Diese Navigation ist sticky, bleibt also beim Scrollen sichtbar. Das Muster wird auf Kontrolle, Workflows und der Designsystem-Seite gezeigt. Es trennt Hauptnavigation und Seitenunterbereiche sauber voneinander.
 
 ## Kopfzeile
 
@@ -149,6 +191,7 @@ Die Dokumentationsseite ist eine interne Handbuchseite innerhalb der App. Sie er
 In der Blanko-Version beschreibt sie:
 
 - Design
+- Designsystem
 - Shell
 - Dashboard
 - Kontrolle

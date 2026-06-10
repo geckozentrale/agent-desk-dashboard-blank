@@ -9,6 +9,7 @@ Eine oeffentliche Blanko-Version des Agent-Desk-Dashboards. Das Projekt zeigt Au
 - Dashboard-Startseite mit sortierbaren Kacheln
 - Chat-Seite mit Composer, lokalem Verlauf, Prozessanzeige und simuliertem Streaming
 - Kontrollseite mit Reitern fuer Heartbeats, Cronjobs, Waechter, Skills, Plugins und Verbindungen
+- Designsystem-Seite mit Icon-Set, Pastellfarben, Card-Mustern und Sticky-Seitennavigation
 - Dokumentationsseite als neutrale Struktur- und Designbeschreibung
 - Workflow-Zentrale mit Pipeline und Freigabezone
 - Logbuch mit Suche und neutraler Demo-Zeitleiste
