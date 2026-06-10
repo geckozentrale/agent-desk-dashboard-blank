@@ -36,6 +36,8 @@ Die Vorlage enthaelt drei Themes:
 
 Der Theme-Schalter liegt unten in der Sidebar. Per Tastatur ist Ctrl + Shift + T vorgesehen.
 
+Das Light Theme ist nicht nur ein Fallback, sondern ein eigener Modus fuer helle Arbeitsumgebungen. Es nutzt warme helle Flaechen, dunklen Text, weiche Linien und dieselben Pastell-Akzente wie Pastel V2. Dadurch bleiben Aufbau, Abstaende und Bedienlogik gleich, nur die Helligkeit aendert sich.
+
 ## Navigation
 
 Die linke Navigation ist die Hauptstruktur des Dashboards. Sie nutzt Icon, Titel und kurzen Hinweistext pro Seite.
@@ -43,6 +45,7 @@ Die linke Navigation ist die Hauptstruktur des Dashboards. Sie nutzt Icon, Titel
 Seiten in dieser Blanko-Version:
 
 - Dashboard
+- Chat
 - Kontrolle
 - Dokumentation
 - Workflows
@@ -95,6 +98,27 @@ Funktionen:
 - Notizen und Aufgaben lokal speichern
 
 Die produktive Idee dahinter: Das Dashboard zeigt keine Rohdatenflut, sondern nur verdichtete Signale, die eine Aktion oder einen Blick wert sind.
+
+## Chat
+
+Die Chat-Seite zeigt das zentrale Arbeitsmuster fuer Unterhaltungen mit einem Agenten, ohne eine echte Runtime zu verbinden.
+
+Aufbau:
+
+- linke Kontextspalte mit Beschreibung, Prozessanzeige und Freigabehinweis
+- rechte Chatflaeche mit Verlauf
+- Eingabeleiste mit Anhang-Platzhalter, Textfeld und Senden-Button
+- Reset-Aktion zum lokalen Leeren des Demo-Verlaufs
+
+Verhalten:
+
+- Nachrichten werden lokal im Browser gespeichert
+- Antworten werden als simuliertes Streaming schrittweise eingeblendet
+- waehrend des Antwortens zeigt die Prozessanzeige den laufenden Zustand
+- der Composer sperrt weiteres Senden, solange die Demo-Antwort laeuft
+- es gibt keine Verbindung zu OpenAI, einem Backend, Websocket, Memory, E-Mail oder anderen Diensten
+
+Die sichtbare Prozessanzeige ist fuer echte Zwischenstaende gedacht: Kontext sammeln, pruefen, schreiben, Freigaben erkennen. In dieser Vorlage ist sie rein visuell. Die Freigabezone macht klar, dass Aktionen mit Aussenwirkung spaeter nicht automatisch passieren sollen.
 
 ## Kontrollseite
 
@@ -240,6 +264,7 @@ Die App nutzt wiederkehrende Muster:
 - Tabs/Reiter fuer Unterbereiche
 - Selects fuer Zeitraum oder Status
 - Chips fuer globale Zustaende
+- Chat-Composer mit lokalem Verlauf und simuliertem Streaming
 - Karten fuer einzelne wiederholbare Einheiten
 - Tabellenartige Listen fuer Betriebsdaten
 - leere Zustaende statt Fehlermeldungsrauschen

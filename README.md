@@ -7,6 +7,7 @@ Eine oeffentliche Blanko-Version des Agent-Desk-Dashboards. Das Projekt zeigt Au
 - React/Vite Dashboard-Shell mit linker Navigation
 - Pastel V2 als Standardtheme, plus Light und Dark
 - Dashboard-Startseite mit sortierbaren Kacheln
+- Chat-Seite mit Composer, lokalem Verlauf, Prozessanzeige und simuliertem Streaming
 - Kontrollseite mit Reitern fuer Heartbeats, Cronjobs, Waechter, Skills, Plugins und Verbindungen
 - Dokumentationsseite als neutrale Struktur- und Designbeschreibung
 - Workflow-Zentrale mit Pipeline und Freigabezone
@@ -14,10 +15,12 @@ Eine oeffentliche Blanko-Version des Agent-Desk-Dashboards. Das Projekt zeigt Au
 - Ziele & Ideen mit lokaler Speicherung im Browser
 - Website-Tracking-Seite mit KPI-Karten, Verlauf und Listen als Blanko-Muster
 - Split View fuer zwei parallele Dashboard-Seiten
+- lokale Speicherung im Browser fuer Demo-Notizen, Aufgaben, Ideen, Ziele und Chatverlauf
 
 ## Nicht enthalten
 
 - keine echten Seiteninhalte aus einem produktiven Dashboard
+- keine Runtime- oder Backend-Verknuepfung
 - keine E-Mail-Konten
 - keine Kundendaten
 - keine API-Keys oder Secrets

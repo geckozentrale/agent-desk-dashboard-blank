@@ -19,11 +19,14 @@ import {
   Lock,
   Mail,
   Menu,
+  MessageSquare,
   Moon,
   Palette,
+  Paperclip,
   Plus,
   RefreshCw,
   Search,
+  Send,
   ShieldCheck,
   Sparkles,
   Sun,
@@ -36,7 +39,7 @@ import {
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react'
 
 type ThemeMode = 'light' | 'dark' | 'charcoal'
-type PageId = 'dashboard' | 'control' | 'docs' | 'workflows' | 'logbook' | 'ideas' | 'website'
+type PageId = 'dashboard' | 'chat' | 'control' | 'docs' | 'workflows' | 'logbook' | 'ideas' | 'website'
 type PanelId = 'today' | 'signals' | 'approvals' | 'website' | 'notes' | 'tasks'
 
 type NavItem = {
@@ -67,8 +70,16 @@ type Goal = {
   progress: number
 }
 
+type ChatMessage = {
+  id: string
+  role: 'user' | 'assistant'
+  text: string
+  state?: 'streaming' | 'done'
+}
+
 const navItems: NavItem[] = [
   { id: 'dashboard', title: 'Dashboard', detail: 'Tagesuebersicht', icon: LayoutDashboard },
+  { id: 'chat', title: 'Chat', detail: 'Composer und Antworten', icon: MessageSquare },
   { id: 'control', title: 'Kontrolle', detail: 'Betrieb und Jobs', icon: Activity },
   { id: 'docs', title: 'Dokumentation', detail: 'Aufbau und Regeln', icon: BookOpen },
   { id: 'workflows', title: 'Workflows', detail: 'Ablaufsteuerung', icon: ListChecks },
@@ -90,6 +101,7 @@ const defaultPanels: PanelId[] = ['today', 'signals', 'approvals', 'website']
 
 const pageTitle: Record<PageId, string> = {
   dashboard: 'Dashboard',
+  chat: 'Chat',
   control: 'Kontrolle',
   docs: 'Dokumentation',
   workflows: 'Workflows',
@@ -273,6 +285,8 @@ function App() {
 
 function renderPage(page: PageId) {
   switch (page) {
+    case 'chat':
+      return <ChatPage />
     case 'control':
       return <ControlPage />
     case 'docs':
@@ -535,6 +549,143 @@ function Metric({ label, value, accent = false }: { label: string; value: string
   )
 }
 
+function ChatPage() {
+  const [messages, setMessages] = useState<ChatMessage[]>(() =>
+    readStorage('blank.chat', [
+      {
+        id: 'welcome',
+        role: 'assistant',
+        text:
+          'Ich bin der lokale Blanko-Chat. Ich zeige Composer, Prozessanzeige, Streaming und Freigabehinweise, aber ich sende nichts an ein Backend.',
+        state: 'done',
+      },
+    ]),
+  )
+  const [draft, setDraft] = useState('')
+  const [isStreaming, setIsStreaming] = useState(false)
+  const scroller = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => writeStorage('blank.chat', messages), [messages])
+
+  useEffect(() => {
+    scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' })
+  }, [messages])
+
+  function submit(event: FormEvent) {
+    event.preventDefault()
+    const value = draft.trim()
+    if (!value || isStreaming) return
+
+    const userMessage: ChatMessage = { id: uid(), role: 'user', text: value }
+    const assistantId = uid()
+    const response =
+      'Verstanden. In der Blanko-Version wuerde der Chat jetzt eine Aufgabe klaeren, sichtbare Zwischenschritte zeigen und vor echten Aussenwirkungen eine Freigabe verlangen. Diese Antwort ist lokal simuliert.'
+
+    setDraft('')
+    setIsStreaming(true)
+    setMessages((items) => [...items, userMessage, { id: assistantId, role: 'assistant', text: '', state: 'streaming' }])
+
+    let index = 0
+    const timer = window.setInterval(() => {
+      index += 6
+      setMessages((items) =>
+        items.map((item) =>
+          item.id === assistantId
+            ? {
+                ...item,
+                text: response.slice(0, index),
+                state: index >= response.length ? 'done' : 'streaming',
+              }
+            : item,
+        ),
+      )
+
+      if (index >= response.length) {
+        window.clearInterval(timer)
+        setIsStreaming(false)
+      }
+    }, 42)
+  }
+
+  function resetChat() {
+    setMessages([
+      {
+        id: uid(),
+        role: 'assistant',
+        text:
+          'Chat zurueckgesetzt. Die Vorlage bleibt lokal und nutzt keine API. Du kannst das Verhalten weiter ausprobieren.',
+        state: 'done',
+      },
+    ])
+    setDraft('')
+    setIsStreaming(false)
+  }
+
+  return (
+    <section className="chat-page">
+      <div className="chat-layout">
+        <aside className="chat-rail">
+          <SectionIntro
+            eyebrow="Blanko-Chat"
+            title="Chat-Verhalten ohne Runtime."
+            text="Diese Seite bildet das Arbeitsgefuehl nach: Eingabe, Antwortfluss, Prozessblock, Status und Freigabehinweis."
+          />
+          <div className="process-card">
+            <strong>Prozessanzeige</strong>
+            <span className={isStreaming ? 'is-active' : ''}>{isStreaming ? 'Antwort laeuft' : 'Bereit'}</span>
+            <ol>
+              <li>Nachricht aufnehmen</li>
+              <li>Kontext sichtbar sortieren</li>
+              <li>Antwort streamen</li>
+              <li>Freigabe pruefen</li>
+            </ol>
+          </div>
+          <div className="approval-zone chat-approval">
+            <ShieldCheck size={18} />
+            <div>
+              <strong>Keine Aussenwirkung</strong>
+              <p>Der Blanko-Chat kann nichts senden, aendern oder ausloesen. Produktive Aktionen brauchen spaeter eine klare Freigabe.</p>
+            </div>
+          </div>
+          <button type="button" className="reset-chat" onClick={resetChat}>
+            <RefreshCw size={15} />
+            Chat leeren
+          </button>
+        </aside>
+
+        <div className="chat-surface">
+          <div className="chat-thread" ref={scroller}>
+            {messages.map((message) => (
+              <article key={message.id} className="chat-message" data-role={message.role}>
+                <div className="chat-avatar">{message.role === 'assistant' ? <Bot size={17} /> : 'Du'}</div>
+                <div className="chat-bubble">
+                  <p>{message.text || '...'}</p>
+                  {message.state === 'streaming' ? <span className="typing-dot" aria-label="Antwort wird geschrieben" /> : null}
+                </div>
+              </article>
+            ))}
+          </div>
+
+          <form className="chat-composer" onSubmit={submit}>
+            <button type="button" title="Anhang Platzhalter">
+              <Paperclip size={16} />
+            </button>
+            <textarea
+              value={draft}
+              onChange={(event) => setDraft(event.target.value)}
+              placeholder="Nachricht schreiben"
+              rows={2}
+            />
+            <button type="submit" disabled={isStreaming || !draft.trim()} title="Senden">
+              <Send size={16} />
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function ControlPage() {
   const [active, setActive] = useState('heartbeats')
   const categories = [
@@ -582,6 +733,7 @@ function DocsPage() {
     ['Design', 'Pastel V2 nutzt einen charcoal Grund, helle Schrift und Pastellfarben nur fuer Akzente, Status und wichtige Karten.'],
     ['Shell', 'Links steht die Navigation. Oben zeigt die Kopfzeile Seite, Zustand und globale Aktionen. Die Seitenflaeche bleibt ruhig und dicht.'],
     ['Dashboard', 'Die Startseite besteht aus frei sortierbaren Kacheln. Nutzer koennen Kacheln entfernen, hinzufuegen, fixieren und zuruecksetzen.'],
+    ['Chat', 'Der Chat zeigt lokale Nachrichten, simuliertes Streaming, Prozessanzeige, Composer und Freigabehinweise ohne API-Verbindung.'],
     ['Kontrolle', 'Alle technischen Bereiche liegen in Reitern: Heartbeats, Cronjobs, Waechter, Skills, Plugins und Verbindungen.'],
     ['Website Tracking', 'Die Tracking-Seite ist fuer Kennzahlen, Verlauf, Funnel und Top-Listen gebaut. Diese Blanko-Version zeigt nur neutrale Demo-Werte.'],
     ['Workflows', 'Workflows folgen links der Auswahl und rechts einer Detailansicht mit Pipeline, Status und Freigabezone.'],
