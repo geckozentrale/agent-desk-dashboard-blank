@@ -1,8 +1,8 @@
 # Agent Desk Dashboard Blank
 
-Oeffentliche Blanko-Version eines Agent-Desk-Dashboards. Das Repo zeigt Seitenaufbau, Designsystem und Grundfunktionen ohne echte Inhalte, Konten, Tokens, Kundendaten, E-Mail-Verbindungen, Runtime oder produktive Workflows.
+Oeffentliche Blanko-Version der Agent-Desk-Oberflaeche. Die Vorlage nutzt die echten Dashboard-Grundlagen fuer Shell, Fonts, Theme-Tokens, Sidebar, Split View, Karten, Sticky-Unterseiten und Seitenraster. Inhalte, Runtime, Backend, E-Mail, Kundendaten, produktive Jobs und API-Keys sind nicht enthalten.
 
-Die vollstaendige Hauptdokumentation liegt in `DESIGN.md`. Dort stehen Einrichtung, Seitenbeschreibung, Card-Aufbau, Icon- und Farbvorgaben, Chat-Verhalten, lokale Demo-Speicherung, Split View und die Regeln fuer eine spaetere Anbindung an einen neuen lokalen Agenten.
+Die zentrale Anleitung liegt in `DESIGN.md`. Dort stehen Einrichtung, Seitenaufbau, Themes, Icons, Cards, Chat-Verhalten, Split View und die Regeln fuer eine spaetere Anbindung an einen neuen lokalen Agenten.
 
 ## Schnellstart
 
@@ -13,19 +13,18 @@ npm install
 npm run dev
 ```
 
-Fuer einen pruefbaren Build:
+Pruefbarer Build:
 
 ```bash
 npm run build
 ```
 
-## Kurzueberblick
+## Enthalten
 
-- React/Vite Dashboard-Shell mit linker Sticky-Navigation
-- Pastel V2 als Standardtheme, plus Light und Dark
-- Dashboard-Startseite mit sortierbaren Kacheln
-- Chat-Seite mit Composer, lokalem Verlauf, Prozessanzeige und simuliertem Streaming
-- Kontrollseite mit Reitern fuer Heartbeats, Cronjobs, Waechter, Skills, Plugins und Verbindungen
-- Designsystem-Seite mit Icon-Set, Pastellfarben, Card-Mustern und Sticky-Seitennavigation
-- Dokumentationsseite, Workflow-Zentrale, Logbuch, Ziele & Ideen und Website Tracking als neutrale Blanko-Seiten
-- keine Backend-Aufrufe, keine API-Keys, keine Proxy-Konfiguration, keine produktiven Jobs
+- echte Agent-Desk-Shell mit linker Sticky-Navigation, Verlaufsspalte, Theme-Schalter und einklappbarer Sidebar
+- Pastel V2 als Standard, plus Light und Dark
+- Dashboard mit Tagesdeck, Kartenraster, lokaler Kachel-Sortierung, Entfernen und Zuruecksetzen
+- Chat-Seite mit lokalem Composer, Verlauf, Prozess- und Tool-Nachrichten
+- Kontrolle, Dokumentation, Workflows, Logbuch, Ziele & Ideen und Website Tracking als neutrale Seitenaufbauten
+- Designsystem-Seite mit Pastellfarben, Icon-Namen, Card-Mustern und Layoutvorgaben
+- keine Live-Verbindungen, keine Secrets, keine echten Daten

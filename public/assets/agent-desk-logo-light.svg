@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" role="img" aria-label="Agent Desk">
+  <rect width="96" height="96" rx="22" fill="#d8c4e6"/>
+  <path d="M24 30h48v8H24zM24 46h30v8H24zM24 62h48v8H24z" fill="#1f2126"/>
+  <circle cx="70" cy="50" r="8" fill="#c2e8d6" stroke="#1f2126" stroke-width="4"/>
+</svg>

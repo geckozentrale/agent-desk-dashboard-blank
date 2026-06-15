@@ -1,127 +1,60 @@
-import {
-  Activity,
-  Archive,
-  BookOpen,
-  Bot,
-  CalendarClock,
-  Check,
-  ChevronDown,
-  CircleDot,
-  ClipboardList,
-  Code2,
-  Columns2,
-  Database,
-  FileText,
-  Globe,
-  GripVertical,
-  LayoutDashboard,
-  ListChecks,
-  Lock,
-  Mail,
-  Menu,
-  MessageSquare,
-  Moon,
-  Palette,
-  Paperclip,
-  Plus,
-  RefreshCw,
-  Search,
-  Send,
-  ShieldCheck,
-  Sparkles,
-  Sun,
-  Target,
-  Trash2,
-  Unlock,
-  X,
-  type LucideIcon,
-} from 'lucide-react'
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { AppIcon, type AppIconName } from './components/icons/AppIcon'
 
 type ThemeMode = 'light' | 'dark' | 'charcoal'
 type PageId =
-  | 'dashboard'
-  | 'chat'
-  | 'control'
-  | 'design'
+  | 'home'
+  | 'workspace'
+  | 'calendar'
+  | 'ideas'
+  | 'customers'
+  | 'immobilien'
+  | 'website'
+  | 'social'
+  | 'baufi'
+  | 'runs'
   | 'docs'
   | 'workflows'
   | 'logbook'
-  | 'ideas'
-  | 'website'
-type PanelId = 'today' | 'signals' | 'approvals' | 'website' | 'notes' | 'tasks'
+  | 'design'
 
 type NavItem = {
   id: PageId
   title: string
-  detail: string
-  icon: LucideIcon
-}
-
-type PanelMeta = {
-  id: PanelId
-  title: string
-  detail: string
-  icon: LucideIcon
-}
-
-type Idea = {
-  id: string
-  title: string
-  body: string
-  status: 'Offen' | 'Naechster Schritt' | 'Geparkt' | 'Erledigt'
-}
-
-type Goal = {
-  id: string
-  title: string
-  horizon: string
-  progress: number
+  icon: AppIconName
+  system?: boolean
 }
 
 type ChatMessage = {
   id: string
-  role: 'user' | 'assistant'
+  role: 'user' | 'assistant' | 'commentary' | 'tool'
   text: string
-  state?: 'streaming' | 'done'
 }
 
 const navItems: NavItem[] = [
-  { id: 'dashboard', title: 'Dashboard', detail: 'Tagesuebersicht', icon: LayoutDashboard },
-  { id: 'chat', title: 'Chat', detail: 'Composer und Antworten', icon: MessageSquare },
-  { id: 'control', title: 'Kontrolle', detail: 'Betrieb und Jobs', icon: Activity },
-  { id: 'design', title: 'Designsystem', detail: 'Farben, Icons, Cards', icon: Palette },
-  { id: 'docs', title: 'Dokumentation', detail: 'Aufbau und Regeln', icon: BookOpen },
-  { id: 'workflows', title: 'Workflows', detail: 'Ablaufsteuerung', icon: ListChecks },
-  { id: 'logbook', title: 'Logbuch', detail: 'Nachweis und Verlauf', icon: ShieldCheck },
-  { id: 'ideas', title: 'Ziele & Ideen', detail: 'Planung und Sammlung', icon: Target },
-  { id: 'website', title: 'Website Tracking', detail: 'Signale und Funnel', icon: Globe },
+  { id: 'home', title: 'Dashboard', icon: 'focus' },
+  { id: 'workspace', title: 'Chat', icon: 'chat' },
+  { id: 'calendar', title: 'Kalender', icon: 'calendar' },
+  { id: 'ideas', title: 'Ziele & Ideen', icon: 'target' },
+  { id: 'customers', title: 'Kunden', icon: 'users' },
+  { id: 'immobilien', title: 'Immobilien', icon: 'home' },
+  { id: 'website', title: 'Website', icon: 'globe' },
+  { id: 'social', title: 'Social Media', icon: 'share' },
+  { id: 'baufi', title: 'Baufi', icon: 'fileText' },
+  { id: 'runs', title: 'Kontrolle', icon: 'activity', system: true },
+  { id: 'docs', title: 'Dokumentation', icon: 'bookOpen', system: true },
+  { id: 'workflows', title: 'Workflows', icon: 'listChecks', system: true },
+  { id: 'logbook', title: 'Logbuch', icon: 'shieldCheck', system: true },
+  { id: 'design', title: 'Designsystem', icon: 'palette', system: true },
 ]
 
-const panelCatalog: PanelMeta[] = [
-  { id: 'today', title: 'Heute', detail: 'Termine, Fristen, offene Punkte', icon: CalendarClock },
-  { id: 'signals', title: 'Signale', detail: 'Neue Meldungen aus angeschlossenen Quellen', icon: CircleDot },
-  { id: 'approvals', title: 'Freigaben', detail: 'Dinge, die eine menschliche Entscheidung brauchen', icon: ShieldCheck },
-  { id: 'website', title: 'Website', detail: 'Schneller Blick auf Besucher und Leads', icon: Globe },
-  { id: 'notes', title: 'Notizen', detail: 'Kleine lokale Merkzettel', icon: FileText },
-  { id: 'tasks', title: 'Aufgaben', detail: 'Einfache To-do-Liste', icon: ClipboardList },
+const demoSessions = [
+  { title: 'Blanko Einrichtung', meta: 'lokal, ohne Runtime' },
+  { title: 'Designabgleich', meta: 'Pastel V2, Light, Dark' },
+  { title: 'Workflow Skizze', meta: 'Beispielverlauf' },
 ]
 
-const defaultPanels: PanelId[] = ['today', 'signals', 'approvals', 'website']
-
-const pageTitle: Record<PageId, string> = {
-  dashboard: 'Dashboard',
-  chat: 'Chat',
-  control: 'Kontrolle',
-  design: 'Designsystem',
-  docs: 'Dokumentation',
-  workflows: 'Workflows',
-  logbook: 'Logbuch',
-  ideas: 'Ziele & Ideen',
-  website: 'Website Tracking',
-}
-
-function readStorage<T>(key: string, fallback: T): T {
+function readStored<T>(key: string, fallback: T): T {
   try {
     const raw = window.localStorage.getItem(key)
     return raw ? (JSON.parse(raw) as T) : fallback
@@ -130,769 +63,637 @@ function readStorage<T>(key: string, fallback: T): T {
   }
 }
 
-function writeStorage<T>(key: string, value: T) {
+function writeStored<T>(key: string, value: T) {
   try {
     window.localStorage.setItem(key, JSON.stringify(value))
   } catch {
-    // The blank template keeps working even when browser storage is blocked.
+    // Storage is optional in the blank template.
   }
 }
 
-function uid() {
-  return crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random())
-}
-
 function App() {
-  const [page, setPage] = useState<PageId>(() => readStorage('blank.page', 'dashboard'))
-  const [theme, setTheme] = useState<ThemeMode>(() => readStorage('blank.theme', 'charcoal'))
-  const [compact, setCompact] = useState(false)
-  const [split, setSplit] = useState(false)
+  const [page, setPage] = useState<PageId>(() => readStored('cb.blank.page', 'home'))
+  const [theme, setTheme] = useState<ThemeMode>(() => readStored('cb.theme', 'charcoal'))
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarView, setSidebarView] = useState<'navigation' | 'history'>('navigation')
+  const [splitOpen, setSplitOpen] = useState(false)
   const [secondaryPage, setSecondaryPage] = useState<PageId>('docs')
-  const [drawerOpen, setDrawerOpen] = useState(false)
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme
-    writeStorage('blank.theme', theme)
+    document.documentElement.style.colorScheme = theme === 'light' ? 'light' : 'dark'
+    writeStored('cb.theme', theme)
   }, [theme])
 
   useEffect(() => {
-    writeStorage('blank.page', page)
+    writeStored('cb.blank.page', page)
   }, [page])
 
   useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 't') {
+    function onKeyDown(event: KeyboardEvent) {
+      if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key.toLowerCase() === 't') {
         event.preventDefault()
-        setTheme((current) => (current === 'light' ? 'dark' : current === 'dark' ? 'charcoal' : 'light'))
+        setTheme((current) => nextTheme(current))
       }
-      if (event.ctrlKey && event.key.toLowerCase() === 'y') {
+      if ((event.ctrlKey || event.metaKey) && event.key === '<') {
         event.preventDefault()
-        setSplit((current) => !current)
+        setSidebarCollapsed((current) => !current)
+      }
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'y') {
+        event.preventDefault()
+        setSplitOpen((current) => !current)
       }
     }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
+  function selectPage(next: PageId) {
+    setPage(next)
+    setSidebarOpen(false)
+  }
+
   return (
-    <div className={`app-shell${compact ? ' is-compact' : ''}`}>
-      <aside className="sidebar">
-        <div className="brand">
-          <div className="brand-mark">AD</div>
-          <div>
-            <strong>Agent Desk</strong>
-            <span>Blank dashboard</span>
-          </div>
+    <main
+      className={`cb-shell${sidebarCollapsed ? ' cb-shell--sidebar-collapsed' : ''}`}
+      data-sidebar-open={sidebarOpen ? 'true' : 'false'}
+    >
+      <aside
+        className={`cb-sidebar${sidebarCollapsed ? ' cb-sidebar--collapsed' : ''}`}
+        aria-label="Navigation"
+      >
+        <div className="cb-mark" aria-label="Agent Desk">
+          <img className="cb-mark__logo cb-mark__logo--on-light" src="/assets/agent-desk-logo.svg" alt="" />
+          <img
+            className="cb-mark__logo cb-mark__logo--on-dark"
+            src="/assets/agent-desk-logo-light.svg"
+            alt=""
+          />
         </div>
 
-        <nav className="side-nav" aria-label="Hauptnavigation">
-          {navItems.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              className="side-nav__item"
-              aria-current={page === item.id}
-              onClick={() => setPage(item.id)}
-            >
-              <item.icon size={17} />
-              <span>
-                <strong>{item.title}</strong>
-                <small>{item.detail}</small>
-              </span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="sidebar__tools">
-          <button type="button" onClick={() => setCompact((value) => !value)} title="Sidebar umschalten">
-            <Menu size={16} />
+        <div className="cb-sidebar-view-toggle" role="tablist" aria-label="Sidebar-Bereich">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={sidebarView === 'navigation'}
+            onClick={() => setSidebarView('navigation')}
+          >
+            Navigation
           </button>
-          <ThemeButton theme={theme} onTheme={setTheme} />
-          <button type="button" onClick={() => setSplit((value) => !value)} title="Split View">
-            <Columns2 size={16} />
+          <button
+            type="button"
+            role="tab"
+            aria-selected={sidebarView === 'history'}
+            onClick={() => setSidebarView('history')}
+          >
+            Verläufe
+          </button>
+        </div>
+
+        <div
+          className="cb-sidebar-panel cb-sidebar-panel--nav"
+          data-active={sidebarView === 'navigation' ? 'true' : 'false'}
+        >
+          <SidebarNav activePage={page} onSelect={selectPage} />
+        </div>
+
+        <div
+          className="cb-sidebar-panel cb-sidebar-panel--history"
+          data-active={sidebarView === 'history' ? 'true' : 'false'}
+        >
+          <SidebarHistory />
+        </div>
+
+        <div className="cb-sidebar__utilities">
+          <button
+            className="cb-sidebar__button"
+            type="button"
+            aria-label={sidebarCollapsed ? 'Sidebar erweitern' : 'Sidebar einklappen'}
+            onClick={() => setSidebarCollapsed((current) => !current)}
+          >
+            <AppIcon name="menu" size={16} />
+            <span>Sidebar</span>
+          </button>
+          <ThemeSwitcher theme={theme} onThemeChange={setTheme} />
+          <button
+            className={splitOpen ? 'cb-sidebar__button cb-sidebar__button--active' : 'cb-sidebar__button'}
+            type="button"
+            onClick={() => setSplitOpen((current) => !current)}
+          >
+            <AppIcon name="more" size={16} />
+            <span>Split</span>
           </button>
         </div>
       </aside>
 
-      <main className="main">
-        <header className="topbar">
-          <button type="button" className="mobile-menu" onClick={() => setDrawerOpen(true)}>
-            <Menu size={18} />
+      <section className="cb-workspace" aria-label="Workspace">
+        <header className="cb-mobile-header" aria-label="Mobile Navigation">
+          <button
+            type="button"
+            className="cb-mobile-header__button"
+            aria-label="Navigation öffnen"
+            onClick={() => setSidebarOpen((current) => !current)}
+          >
+            <AppIcon name={sidebarOpen ? 'close' : 'menu'} size={22} />
           </button>
-          <div>
-            <span>Pastel V2</span>
-            <h1>{pageTitle[page]}</h1>
-          </div>
-          <div className="topbar__actions">
-            <StatusPill icon={Database} label="Blanko" tone="neutral" />
-            <StatusPill icon={Check} label="Keine Live-Daten" tone="ok" />
-          </div>
+          <span className="cb-mobile-header__title">{titleForPage(page)}</span>
+          <span className="cb-mobile-header__spacer" aria-hidden="true" />
         </header>
 
-        {split ? (
-          <div className="split-layout">
-            <section className="pane">
-              <PaneHeader title={pageTitle[page]} onClose={() => setSplit(false)} />
-              {renderPage(page)}
-            </section>
-            <section className="pane">
-              <div className="pane-switcher">
-                <select
-                  value={secondaryPage}
-                  onChange={(event) => setSecondaryPage(event.target.value as PageId)}
-                  aria-label="Zweite Seite waehlen"
-                >
-                  {navItems.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.title}
-                    </option>
-                  ))}
-                </select>
-                <button type="button" onClick={() => setSplit(false)}>
-                  <X size={15} />
-                </button>
-              </div>
-              {renderPage(secondaryPage)}
-            </section>
-          </div>
-        ) : (
-          <div className="page-wrap">{renderPage(page)}</div>
-        )}
-      </main>
+        <div className={splitOpen ? 'cb-dashboard-split cb-dashboard-split--active' : 'cb-dashboard-split cb-dashboard-split--single'}>
+          <DashboardPane page={page} active framed={splitOpen} onSelect={selectPage} />
+          {splitOpen ? (
+            <>
+              <div className="cb-dashboard-split__resize" aria-hidden="true"><span /></div>
+              <DashboardPane
+                page={secondaryPage}
+                active={false}
+                framed
+                canClose
+                onClose={() => setSplitOpen(false)}
+                onSelect={setSecondaryPage}
+              />
+            </>
+          ) : null}
+        </div>
+      </section>
+    </main>
+  )
+}
 
-      {drawerOpen ? (
-        <div className="drawer" role="dialog" aria-modal="true">
-          <div className="drawer__panel">
-            <button type="button" className="drawer__close" onClick={() => setDrawerOpen(false)}>
-              <X size={17} />
+function SidebarNav({ activePage, onSelect }: { activePage: PageId; onSelect: (page: PageId) => void }) {
+  const mainItems = navItems.filter((item) => !item.system)
+  const systemItems = navItems.filter((item) => item.system)
+  return (
+    <nav className="cb-sidebar-nav" aria-label="Hauptnavigation">
+      <div className="cb-sidebar-nav__section">
+        <span className="cb-sidebar-nav__section-label">Arbeitsseiten</span>
+        {mainItems.map((item) => (
+          <NavLinkLike key={item.id} item={item} active={activePage === item.id} onSelect={onSelect} />
+        ))}
+      </div>
+      <div className="cb-sidebar-nav__section">
+        <span className="cb-sidebar-nav__section-label">System</span>
+        {systemItems.map((item) => (
+          <NavLinkLike key={item.id} item={item} active={activePage === item.id} onSelect={onSelect} />
+        ))}
+      </div>
+    </nav>
+  )
+}
+
+function NavLinkLike({
+  item,
+  active,
+  onSelect,
+}: {
+  item: NavItem
+  active: boolean
+  onSelect: (page: PageId) => void
+}) {
+  return (
+    <a
+      href={`#${item.id}`}
+      className="cb-sidebar-nav__link"
+      aria-current={active ? 'page' : undefined}
+      onClick={(event) => {
+        event.preventDefault()
+        onSelect(item.id)
+      }}
+      title={item.title}
+    >
+      <AppIcon name={item.icon} size={16} />
+      <span>{item.title}</span>
+    </a>
+  )
+}
+
+function SidebarHistory() {
+  return (
+    <section className="cb-sidebar-history" aria-label="Chatverläufe">
+      <header className="cb-sidebar-history__head">
+        <span>Projekte</span>
+        <div className="cb-sidebar-history__tools">
+          <small>2</small>
+          <button type="button" title="Neues Projekt">
+            <AppIcon name="folderPlus" size={13} />
+          </button>
+        </div>
+      </header>
+      <div className="cb-sidebar-history__projects">
+        <div className="cb-sidebar-project" data-expanded="true">
+          <div className="cb-sidebar-project__row">
+            <button className="cb-sidebar-project__toggle" type="button">
+              <AppIcon name="chevronDown" size={13} />
+              <span className="cb-sidebar-project__name">Blanko Projekt</span>
+              <small>3</small>
             </button>
-            <nav className="side-nav">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  className="side-nav__item"
-                  aria-current={page === item.id}
-                  onClick={() => {
-                    setPage(item.id)
-                    setDrawerOpen(false)
-                  }}
-                >
-                  <item.icon size={17} />
-                  <span>
-                    <strong>{item.title}</strong>
-                    <small>{item.detail}</small>
-                  </span>
-                </button>
-              ))}
-            </nav>
+          </div>
+          <div className="cb-sidebar-project__sessions">
+            {demoSessions.map((session, index) => (
+              <HistoryItem key={session.title} current={index === 0} title={session.title} meta={session.meta} />
+            ))}
           </div>
         </div>
-      ) : null}
+      </div>
+
+      <header className="cb-sidebar-history__head">
+        <span>Chatverläufe</span>
+        <div className="cb-sidebar-history__tools">
+          <small>1</small>
+          <button type="button" title="Neuer Chat">
+            <AppIcon name="plus" size={13} />
+          </button>
+        </div>
+      </header>
+      <div className="cb-sidebar-history__list">
+        <HistoryItem title="Lokale Demo" meta="keine Verbindung" />
+      </div>
+    </section>
+  )
+}
+
+function HistoryItem({ title, meta, current = false }: { title: string; meta: string; current?: boolean }) {
+  return (
+    <div className="cb-sidebar-history__item" data-current={current ? 'true' : undefined}>
+      <button className="cb-sidebar-history__open" type="button" aria-current={current ? 'true' : undefined}>
+        <span className="cb-sidebar-history__dot" aria-hidden="true" />
+        <span className="cb-sidebar-history__copy">
+          <span className="cb-sidebar-history__title">{title}</span>
+          <span className="cb-sidebar-history__meta">{meta}</span>
+        </span>
+      </button>
     </div>
+  )
+}
+
+function ThemeSwitcher({
+  theme,
+  onThemeChange,
+}: {
+  theme: ThemeMode
+  onThemeChange: (theme: ThemeMode) => void
+}) {
+  const options: Array<{ icon: AppIconName; label: string; mode: ThemeMode }> = [
+    { icon: 'sun', label: 'Light', mode: 'light' },
+    { icon: 'moon', label: 'Dark', mode: 'dark' },
+    { icon: 'palette', label: 'Pastel V2', mode: 'charcoal' },
+  ]
+  return (
+    <div className="cb-theme-switcher" role="radiogroup" aria-label="Theme">
+      {options.map((option) => (
+        <button
+          key={option.mode}
+          type="button"
+          role="radio"
+          aria-checked={theme === option.mode}
+          aria-label={option.label}
+          title={option.label}
+          onClick={() => onThemeChange(option.mode)}
+        >
+          <AppIcon name={option.icon} size={14} />
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function DashboardPane({
+  page,
+  active,
+  framed = false,
+  canClose = false,
+  onClose,
+  onSelect,
+}: {
+  page: PageId
+  active: boolean
+  framed?: boolean
+  canClose?: boolean
+  onClose?: () => void
+  onSelect: (page: PageId) => void
+}) {
+  if (!framed) {
+    return (
+      <section className="cb-dashboard-split__pane" aria-current={active ? 'true' : undefined}>
+        <div className="cb-route-stack">
+          <div className="cb-route-layer">{renderPage(page)}</div>
+        </div>
+      </section>
+    )
+  }
+
+  return (
+    <section className="cb-dashboard-split__pane" aria-current={active ? 'true' : undefined}>
+      <div className="cb-dashboard-split__surface">
+        <aside className="cb-dashboard-split-rail" aria-label="Unterseiten">
+          <div className="cb-dashboard-split-rail__mark" aria-label="Agent Desk">
+            <img
+              className="cb-dashboard-split-rail__logo cb-dashboard-split-rail__logo--on-light"
+              src="/assets/agent-desk-logo.svg"
+              alt=""
+            />
+            <img
+              className="cb-dashboard-split-rail__logo cb-dashboard-split-rail__logo--on-dark"
+              src="/assets/agent-desk-logo-light.svg"
+              alt=""
+            />
+          </div>
+          <nav className="cb-dashboard-split-rail__nav" aria-label="Unterseiten">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="cb-dashboard-split-rail__link"
+                title={item.title}
+                data-active={item.id === page ? 'true' : undefined}
+                onClick={() => onSelect(item.id)}
+              >
+                <AppIcon name={item.icon} size={16} />
+                <span>{item.title}</span>
+              </button>
+            ))}
+          </nav>
+        </aside>
+        <div className="cb-dashboard-split__content">
+          <div className="cb-route-stack">
+            <div className="cb-route-layer">{renderPage(page)}</div>
+          </div>
+        </div>
+      </div>
+      <div className="cb-dashboard-split__controls" data-split-controls="true">
+        {canClose ? (
+          <button className="cb-dashboard-split__control" type="button" title="Split schließen" onClick={onClose}>
+            <AppIcon name="close" size={14} />
+          </button>
+        ) : null}
+        <button className="cb-dashboard-split__control cb-dashboard-split__control--launcher" type="button">
+          <AppIcon name="more" size={15} />
+        </button>
+      </div>
+    </section>
   )
 }
 
 function renderPage(page: PageId) {
   switch (page) {
-    case 'chat':
+    case 'workspace':
       return <ChatPage />
-    case 'control':
+    case 'calendar':
+      return <GenericPage title="Kalender" icon="calendar" />
+    case 'ideas':
+      return <IdeasPage />
+    case 'customers':
+      return <GenericPage title="Kunden" icon="users" />
+    case 'immobilien':
+      return <GenericPage title="Immobilien" icon="home" />
+    case 'website':
+      return <WebsitePage />
+    case 'social':
+      return <GenericPage title="Social Media" icon="share" />
+    case 'baufi':
+      return <GenericPage title="Baufi" icon="fileText" />
+    case 'runs':
       return <ControlPage />
-    case 'design':
-      return <DesignSystemPage />
     case 'docs':
       return <DocsPage />
     case 'workflows':
       return <WorkflowsPage />
     case 'logbook':
       return <LogbookPage />
-    case 'ideas':
-      return <IdeasPage />
-    case 'website':
-      return <WebsitePage />
+    case 'design':
+      return <DesignPage />
     default:
       return <DashboardPage />
   }
 }
 
-function ThemeButton({ theme, onTheme }: { theme: ThemeMode; onTheme: (theme: ThemeMode) => void }) {
-  const Icon = theme === 'light' ? Sun : theme === 'dark' ? Moon : Palette
-  const next = theme === 'light' ? 'dark' : theme === 'dark' ? 'charcoal' : 'light'
-  return (
-    <button type="button" onClick={() => onTheme(next)} title="Theme wechseln">
-      <Icon size={16} />
-    </button>
-  )
-}
-
-function StatusPill({ icon: Icon, label, tone }: { icon: LucideIcon; label: string; tone: string }) {
-  return (
-    <span className="status-pill" data-tone={tone}>
-      <Icon size={14} />
-      {label}
-    </span>
-  )
-}
-
-function PaneHeader({ title, onClose }: { title: string; onClose: () => void }) {
-  return (
-    <div className="pane-header">
-      <span>{title}</span>
-      <button type="button" onClick={onClose}>
-        <X size={15} />
-      </button>
-    </div>
-  )
-}
-
 function DashboardPage() {
-  const [panels, setPanels] = useState<PanelId[]>(() => readStorage('blank.panels', defaultPanels))
-  const [locked, setLocked] = useState(false)
-  const [notes, setNotes] = useState<string[]>(() => readStorage('blank.notes', []))
-  const [tasks, setTasks] = useState<string[]>(() => readStorage('blank.tasks', []))
-  const [noteDraft, setNoteDraft] = useState('')
-  const [taskDraft, setTaskDraft] = useState('')
-  const [dragged, setDragged] = useState<PanelId | null>(null)
+  const [hidden, setHidden] = useState<string[]>([])
+  const catalog = useMemo(() => [
+    { id: 'events', title: 'Heute', icon: 'calendarClock' as AppIconName, count: '3' },
+    { id: 'mails', title: 'Posteingang', icon: 'mail' as AppIconName, count: '5' },
+    { id: 'approvals', title: 'Zur Freigabe', icon: 'shieldCheck' as AppIconName, count: '2' },
+    { id: 'website', title: 'Website (7 Tage)', icon: 'globe' as AppIconName, count: '4' },
+    { id: 'notes', title: 'Notizen', icon: 'fileText' as AppIconName, count: '2' },
+    { id: 'todos', title: 'To-dos', icon: 'listChecks' as AppIconName, count: '6' },
+  ], [])
+  const [order, setOrder] = useState<string[]>(() =>
+    readStored('cb.blank.deckOrder', catalog.map((panel) => panel.id)),
+  )
+  const [dragged, setDragged] = useState<string | null>(null)
+  const panels = order
+    .map((id) => catalog.find((panel) => panel.id === id))
+    .filter((panel): panel is (typeof catalog)[number] => Boolean(panel))
+    .filter((panel) => !hidden.includes(panel.id))
 
-  useEffect(() => writeStorage('blank.panels', panels), [panels])
-  useEffect(() => writeStorage('blank.notes', notes), [notes])
-  useEffect(() => writeStorage('blank.tasks', tasks), [tasks])
+  useEffect(() => {
+    writeStored('cb.blank.deckOrder', order)
+  }, [order])
 
-  const available = panelCatalog.filter((panel) => !panels.includes(panel.id))
-
-  function addPanel(id: PanelId) {
-    setPanels((current) => [...current, id])
-  }
-
-  function removePanel(id: PanelId) {
-    setPanels((current) => current.filter((panel) => panel !== id))
-  }
-
-  function movePanel(target: PanelId) {
-    if (!dragged || dragged === target || locked) return
-    setPanels((current) => {
-      const next = current.filter((id) => id !== dragged)
-      const targetIndex = next.indexOf(target)
-      next.splice(targetIndex, 0, dragged)
+  function movePanel(targetId: string) {
+    if (!dragged || dragged === targetId) return
+    setOrder((current) => {
+      const from = current.indexOf(dragged)
+      const to = current.indexOf(targetId)
+      if (from < 0 || to < 0) return current
+      const next = current.slice()
+      const [item] = next.splice(from, 1)
+      next.splice(to, 0, item)
       return next
     })
   }
 
   return (
-    <section className="dashboard-page">
-      <div className="hero-strip">
-        <div>
-          <span>Blank workspace</span>
-          <h2>Tagesdeck ohne Kundendaten.</h2>
-          <p>
-            Die Startseite sammelt operative Kacheln, lokale Notizen und optionale Signale. Alles in
-            dieser Vorlage bleibt im Browser und verbindet sich mit keinem Konto.
-          </p>
-        </div>
-        <div className="hero-actions">
-          <button type="button" onClick={() => setLocked((value) => !value)}>
-            {locked ? <Lock size={16} /> : <Unlock size={16} />}
-            {locked ? 'Fixiert' : 'Frei sortierbar'}
-          </button>
-          <button type="button" onClick={() => setPanels(defaultPanels)}>
-            <RefreshCw size={16} />
-            Reset
-          </button>
-        </div>
-      </div>
-
-      <div className="add-row">
-        {available.map((panel) => (
-          <button key={panel.id} type="button" onClick={() => addPanel(panel.id)}>
-            <Plus size={15} />
-            {panel.title}
-          </button>
-        ))}
-      </div>
-
-      <div className="panel-grid">
-        {panels.map((id) => {
-          const meta = panelCatalog.find((panel) => panel.id === id)
-          if (!meta) return null
-          return (
-            <article
-              key={id}
-              className="dashboard-card"
-              draggable={!locked}
-              onDragStart={() => setDragged(id)}
-              onDragEnter={() => movePanel(id)}
-              onDragEnd={() => setDragged(null)}
+    <section className="cb-deck">
+      <div className="cb-deck__scroll">
+        <header className="cb-deck-hero">
+          <div className="cb-deck-hero__logo">
+            <img className="cb-deck-hero__logo-img cb-deck-hero__logo-img--on-light" src="/assets/agent-desk-logo.svg" alt="" />
+            <img className="cb-deck-hero__logo-img cb-deck-hero__logo-img--on-dark" src="/assets/agent-desk-logo-light.svg" alt="" />
+          </div>
+          <div className="cb-deck-hero__copy">
+            <span>Blanko Dashboard</span>
+            <h1>Agent Desk</h1>
+            <p>Gleiche Raster, Karten, Sticky-Flächen und Composer-Position wie die echte Oberfläche, aber nur mit lokalen Beispieldaten.</p>
+          </div>
+          <div className="cb-deck-bar">
+            <span className="cb-deck-bar__chip"><AppIcon name="database" size={14} /> Lokal</span>
+            <span className="cb-deck-bar__chip"><AppIcon name="check" size={14} /> Ohne Backend</span>
+            <button
+              className="cb-deck-bar__lock"
+              type="button"
+              title="Layout zurücksetzen"
+              onClick={() => {
+                setHidden([])
+                setOrder(catalog.map((panel) => panel.id))
+              }}
             >
-              <header>
-                <span>
-                  <meta.icon size={18} />
-                  {meta.title}
-                </span>
-                <div>
-                  {!locked ? <GripVertical size={15} /> : null}
-                  <button type="button" onClick={() => removePanel(id)} title="Kachel entfernen">
-                    <X size={14} />
-                  </button>
-                </div>
+              <AppIcon name="regenerate" size={15} />
+            </button>
+          </div>
+        </header>
+
+        <div className="cb-deck-canvas cb-blank-deck-canvas" data-dragging={dragged ? 'true' : undefined}>
+          {panels.map((panel, index) => (
+            <article
+              key={panel.id}
+              className="cb-deck-panel cb-blank-deck-panel"
+              draggable
+              data-dragging={dragged === panel.id ? 'true' : undefined}
+              onDragStart={() => setDragged(panel.id)}
+              onDragEnd={() => setDragged(null)}
+              onDragOver={(event) => {
+                event.preventDefault()
+                movePanel(panel.id)
+              }}
+            >
+              <header className="cb-deck-panel__head">
+                <span className="cb-deck-panel__grip"><AppIcon name="more" size={15} /></span>
+                <span className="cb-deck-panel__title"><AppIcon name={panel.icon} size={18} />{panel.title}</span>
+                <span className="cb-deck-panel__count">{panel.count}</span>
+                <button className="cb-deck-panel__remove" type="button" onClick={() => setHidden((current) => [...current, panel.id])}>
+                  <AppIcon name="close" size={13} />
+                </button>
               </header>
-              <p>{meta.detail}</p>
-              {renderPanelBody(id, {
-                notes,
-                tasks,
-                noteDraft,
-                taskDraft,
-                setNoteDraft,
-                setTaskDraft,
-                setNotes,
-                setTasks,
-              })}
+              <div className="cb-deck-panel__body">
+                <DemoRows index={index} />
+              </div>
+              <span className="cb-deck-panel__resize" aria-hidden="true" />
             </article>
-          )
-        })}
+          ))}
+        </div>
       </div>
+      <DashboardComposer />
     </section>
   )
 }
 
-function renderPanelBody(
-  id: PanelId,
-  state: {
-    notes: string[]
-    tasks: string[]
-    noteDraft: string
-    taskDraft: string
-    setNoteDraft: (value: string) => void
-    setTaskDraft: (value: string) => void
-    setNotes: (updater: (items: string[]) => string[]) => void
-    setTasks: (updater: (items: string[]) => string[]) => void
-  },
-) {
-  if (id === 'website') {
+function DemoRows({ index }: { index: number }) {
+  if (index === 3) {
     return (
-      <div className="metric-grid">
-        <Metric label="Besucher" value="0" />
-        <Metric label="Leads" value="0" accent />
-        <Metric label="Conversion" value="0%" />
+      <div className="cb-deck-metrics">
+        <span className="cb-deck-metric" data-accent="true"><strong>124</strong><span>Besuche</span></span>
+        <span className="cb-deck-metric"><strong>18</strong><span>Signale</span></span>
+        <span className="cb-deck-metric"><strong>7</strong><span>Formulare</span></span>
+        <span className="cb-deck-metric"><strong>4</strong><span>Rückrufe</span></span>
       </div>
     )
   }
-
-  if (id === 'notes') {
-    return (
-      <MiniList
-        placeholder="Notiz schreiben"
-        draft={state.noteDraft}
-        items={state.notes}
-        onDraft={state.setNoteDraft}
-        onAdd={(value) => state.setNotes((items) => [value, ...items])}
-        onRemove={(index) => state.setNotes((items) => items.filter((_, itemIndex) => itemIndex !== index))}
-      />
-    )
-  }
-
-  if (id === 'tasks') {
-    return (
-      <MiniList
-        placeholder="Aufgabe schreiben"
-        draft={state.taskDraft}
-        items={state.tasks}
-        onDraft={state.setTaskDraft}
-        onAdd={(value) => state.setTasks((items) => [value, ...items])}
-        onRemove={(index) => state.setTasks((items) => items.filter((_, itemIndex) => itemIndex !== index))}
-      />
-    )
-  }
-
   return (
-    <div className="empty-state">
-      <Sparkles size={18} />
-      <span>Leerzustand. Hier erscheinen spaeter echte Karten, wenn ein Backend angeschlossen wird.</span>
-    </div>
+    <>
+      {['09:00', '11:30', '14:15'].map((time, row) => (
+        <div key={time} className="cb-deck-row">
+          <span className="cb-deck-row__time">{time}</span>
+          <span className="cb-deck-row__main">
+            <strong>Beispieleintrag {row + 1}</strong>
+            <small>Neutraler Platzhalter für die Kartenstruktur</small>
+          </span>
+          <span className="cb-deck-row__btns">
+            <button className="cb-deck-row__btn" type="button"><AppIcon name="check" size={13} /></button>
+          </span>
+        </div>
+      ))}
+    </>
   )
 }
 
-function MiniList(props: {
-  placeholder: string
-  draft: string
-  items: string[]
-  onDraft: (value: string) => void
-  onAdd: (value: string) => void
-  onRemove: (index: number) => void
-}) {
-  function submit(event: FormEvent) {
-    event.preventDefault()
-    const value = props.draft.trim()
-    if (!value) return
-    props.onAdd(value)
-    props.onDraft('')
-  }
-
+function DashboardComposer() {
+  const [draft, setDraft] = useState('')
   return (
-    <div className="mini-list">
-      <form onSubmit={submit}>
-        <input value={props.draft} onChange={(event) => props.onDraft(event.target.value)} placeholder={props.placeholder} />
-        <button type="submit">
-          <Plus size={14} />
+    <form
+      className="cb-deck-composer"
+      onSubmit={(event) => {
+        event.preventDefault()
+        setDraft('')
+      }}
+    >
+      <div className="cb-deck-composer__note">Lokaler Demo-Composer, sendet nichts nach außen.</div>
+      <div className="cb-deck-composer__bar">
+        <textarea
+          className="cb-deck-composer__input"
+          value={draft}
+          onChange={(event) => setDraft(event.target.value)}
+          placeholder="Kurze Aufgabe oder Frage notieren..."
+        />
+        <button className="cb-deck-composer__send" type="submit" aria-label="Senden">
+          <AppIcon name="send" size={16} />
         </button>
-      </form>
-      {props.items.length ? (
-        props.items.map((item, index) => (
-          <div key={`${item}-${index}`} className="mini-row">
-            <span>{item}</span>
-            <button type="button" onClick={() => props.onRemove(index)}>
-              <Trash2 size={13} />
-            </button>
-          </div>
-        ))
-      ) : (
-        <div className="empty-state">Noch nichts eingetragen.</div>
-      )}
-    </div>
-  )
-}
-
-function Metric({ label, value, accent = false }: { label: string; value: string; accent?: boolean }) {
-  return (
-    <div className="metric" data-accent={accent || undefined}>
-      <span>{label}</span>
-      <strong>{value}</strong>
-    </div>
+      </div>
+    </form>
   )
 }
 
 function ChatPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>(() =>
-    readStorage('blank.chat', [
-      {
-        id: 'welcome',
-        role: 'assistant',
-        text:
-          'Ich bin der lokale Blanko-Chat. Ich zeige Composer, Prozessanzeige, Streaming und Freigabehinweise, aber ich sende nichts an ein Backend.',
-        state: 'done',
-      },
-    ]),
-  )
   const [draft, setDraft] = useState('')
-  const [isStreaming, setIsStreaming] = useState(false)
-  const scroller = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => writeStorage('blank.chat', messages), [messages])
-
-  useEffect(() => {
-    scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: 'smooth' })
-  }, [messages])
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { id: '1', role: 'user', text: 'Bitte skizziere den nächsten Schritt.' },
+    { id: '2', role: 'commentary', text: 'Ich prüfe die vorhandenen Platzhalter und bereite eine lokale Antwort vor.' },
+    { id: '3', role: 'tool', text: 'Lokaler Werkzeugblock: keine Runtime, kein Netzwerk, kein Konto.' },
+    { id: '4', role: 'assistant', text: 'Der nächste Schritt ist als neutrale Demo angelegt. Das Verhalten zeigt Chat, Prozessblock und Composer, ohne echte Läufe zu starten.' },
+  ])
 
   function submit(event: FormEvent) {
     event.preventDefault()
-    const value = draft.trim()
-    if (!value || isStreaming) return
-
-    const userMessage: ChatMessage = { id: uid(), role: 'user', text: value }
-    const assistantId = uid()
-    const response =
-      'Verstanden. In der Blanko-Version wuerde der Chat jetzt eine Aufgabe klaeren, sichtbare Zwischenschritte zeigen und vor echten Aussenwirkungen eine Freigabe verlangen. Diese Antwort ist lokal simuliert.'
-
+    if (!draft.trim()) return
+    const userText = draft.trim()
     setDraft('')
-    setIsStreaming(true)
-    setMessages((items) => [...items, userMessage, { id: assistantId, role: 'assistant', text: '', state: 'streaming' }])
-
-    let index = 0
-    const timer = window.setInterval(() => {
-      index += 6
-      setMessages((items) =>
-        items.map((item) =>
-          item.id === assistantId
-            ? {
-                ...item,
-                text: response.slice(0, index),
-                state: index >= response.length ? 'done' : 'streaming',
-              }
-            : item,
-        ),
-      )
-
-      if (index >= response.length) {
-        window.clearInterval(timer)
-        setIsStreaming(false)
-      }
-    }, 42)
-  }
-
-  function resetChat() {
-    setMessages([
-      {
-        id: uid(),
-        role: 'assistant',
-        text:
-          'Chat zurueckgesetzt. Die Vorlage bleibt lokal und nutzt keine API. Du kannst das Verhalten weiter ausprobieren.',
-        state: 'done',
-      },
+    setMessages((current) => [
+      ...current,
+      { id: crypto.randomUUID(), role: 'user', text: userText },
+      { id: crypto.randomUUID(), role: 'commentary', text: 'Ich simuliere das Streaming lokal und fasse den Auftrag neutral zusammen.' },
+      { id: crypto.randomUUID(), role: 'assistant', text: 'Demo-Antwort: Die Eingabe wurde nur im Browser verarbeitet. Es gibt keine Backend-Verbindung.' },
     ])
-    setDraft('')
-    setIsStreaming(false)
   }
 
   return (
-    <section className="chat-page">
-      <div className="chat-layout">
-        <aside className="chat-rail">
-          <SectionIntro
-            eyebrow="Blanko-Chat"
-            title="Chat-Verhalten ohne Runtime."
-            text="Diese Seite bildet das Arbeitsgefuehl nach: Eingabe, Antwortfluss, Prozessblock, Status und Freigabehinweis."
-          />
-          <div className="process-card">
-            <strong>Prozessanzeige</strong>
-            <span className={isStreaming ? 'is-active' : ''}>{isStreaming ? 'Antwort laeuft' : 'Bereit'}</span>
-            <ol>
-              <li>Nachricht aufnehmen</li>
-              <li>Kontext sichtbar sortieren</li>
-              <li>Antwort streamen</li>
-              <li>Freigabe pruefen</li>
-            </ol>
-          </div>
-          <div className="approval-zone chat-approval">
-            <ShieldCheck size={18} />
-            <div>
-              <strong>Keine Aussenwirkung</strong>
-              <p>Der Blanko-Chat kann nichts senden, aendern oder ausloesen. Produktive Aktionen brauchen spaeter eine klare Freigabe.</p>
-            </div>
-          </div>
-          <button type="button" className="reset-chat" onClick={resetChat}>
-            <RefreshCw size={15} />
-            Chat leeren
-          </button>
-        </aside>
-
-        <div className="chat-surface">
-          <div className="chat-thread" ref={scroller}>
-            {messages.map((message) => (
-              <article key={message.id} className="chat-message" data-role={message.role}>
-                <div className="chat-avatar">{message.role === 'assistant' ? <Bot size={17} /> : 'Du'}</div>
-                <div className="chat-bubble">
-                  <p>{message.text || '...'}</p>
-                  {message.state === 'streaming' ? <span className="typing-dot" aria-label="Antwort wird geschrieben" /> : null}
-                </div>
-              </article>
-            ))}
-          </div>
-
-          <form className="chat-composer" onSubmit={submit}>
-            <button type="button" title="Anhang Platzhalter">
-              <Paperclip size={16} />
-            </button>
-            <textarea
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              placeholder="Nachricht schreiben"
-              rows={2}
-            />
-            <button type="submit" disabled={isStreaming || !draft.trim()} title="Senden">
-              <Send size={16} />
-            </button>
-          </form>
+    <section className="cb-columns cb-columns--single">
+      <div className="cb-workspace-column cb-workspace-column--active cb-blank-chat">
+        <div className="cb-blank-chat__messages">
+          {messages.map((message) => (
+            <article key={message.id} className={`cb-blank-message cb-blank-message--${message.role}`}>
+              <span>{message.role === 'assistant' ? 'Codex' : message.role === 'user' ? 'Du' : message.role}</span>
+              <p>{message.text}</p>
+            </article>
+          ))}
         </div>
+        <form className="cb-blank-chat__composer" onSubmit={submit}>
+          <button type="button" aria-label="Anhang"><AppIcon name="attach" size={16} /></button>
+          <textarea value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Nachricht schreiben..." />
+          <button type="submit" aria-label="Senden"><AppIcon name="send" size={16} /></button>
+        </form>
       </div>
     </section>
   )
 }
 
 function ControlPage() {
-  const [active, setActive] = useState('heartbeats')
-  const categories = [
-    { id: 'heartbeats', title: 'Heartbeats', detail: 'laufende Lebenszeichen', icon: Activity, count: 0 },
-    { id: 'cronjobs', title: 'Cron Jobs', detail: 'geplante Hintergrundlaeufe', icon: CalendarClock, count: 0 },
-    { id: 'watchers', title: 'Waechter', detail: 'Beobachter und Worker', icon: ShieldCheck, count: 0 },
-    { id: 'skills', title: 'Skills', detail: 'aktiv und angewendet', icon: Code2, count: 0 },
-    { id: 'plugins', title: 'Plugins', detail: 'Plugin-Anschluesse', icon: Sparkles, count: 0 },
-    { id: 'connections', title: 'Verbindungen', detail: 'Dienste, Modelle, CLIs', icon: Globe, count: 0 },
-  ]
-
   return (
-    <section className="two-column-page">
-      <aside className="section-nav">
-        {categories.map((item) => (
-          <button key={item.id} type="button" aria-pressed={active === item.id} onClick={() => setActive(item.id)}>
-            <item.icon size={17} />
-            <span>
-              <strong>{item.title}</strong>
-              <small>{item.detail}</small>
-            </span>
-            <em>{item.count}</em>
-          </button>
-        ))}
-      </aside>
-      <div className="content-panel">
-        <SectionIntro
-          eyebrow="Kontrollseite"
-          title={categories.find((item) => item.id === active)?.title ?? 'Kontrolle'}
-          text="Alle Betriebsbereiche sitzen in einer Seite. Cronjobs sind ein Reiter innerhalb der Kontrolle und kein eigener Navigationspunkt."
-        />
-        <div className="table-card">
-          <div className="table-head">
-            <span>Name</span>
-            <span>Status</span>
-            <span>Naechster Lauf</span>
+    <section className="cb-runs-page">
+      <div className="cb-inventory">
+        <header className="cb-inventory__head">
+          <h1>Kontrolle</h1>
+          <div className="cb-inventory__summary">
+            <span><strong>0</strong>Live-Jobs</span>
+            <span data-tone="ok"><strong>12</strong>Vorlagen</span>
+            <span data-tone="warn"><strong>3</strong>Hinweise</span>
           </div>
-          <BlankRow label="Keine Live-Jobs verbunden" />
-          <BlankRow label="Backend-Adapter kann hier spaeter Daten liefern" />
-        </div>
-      </div>
-    </section>
-  )
-}
-
-function DesignSystemPage() {
-  const iconSamples = [
-    { title: 'Dashboard', detail: 'Startseite', icon: LayoutDashboard, tone: 'mint' },
-    { title: 'Chat', detail: 'Composer', icon: MessageSquare, tone: 'sky' },
-    { title: 'Kontrolle', detail: 'Betrieb', icon: Activity, tone: 'sage' },
-    { title: 'Dokumentation', detail: 'Handbuch', icon: BookOpen, tone: 'butter' },
-    { title: 'Workflows', detail: 'Pipeline', icon: ListChecks, tone: 'peach' },
-    { title: 'Logbuch', detail: 'Nachweis', icon: ShieldCheck, tone: 'rose' },
-    { title: 'Ziele', detail: 'Planung', icon: Target, tone: 'lavender' },
-    { title: 'Website', detail: 'Signale', icon: Globe, tone: 'sky' },
-  ]
-  const swatches = [
-    ['Mint', 'var(--pastel-mint)', '#c2e8d6'],
-    ['Sky', 'var(--pastel-sky)', '#c4ddee'],
-    ['Rose', 'var(--pastel-rose)', '#ecc4d0'],
-    ['Butter', 'var(--pastel-butter)', '#f3e0a8'],
-    ['Peach', 'var(--pastel-peach)', '#f5d2b8'],
-    ['Lavender', 'var(--pastel-lavender)', '#d8c4e6'],
-    ['Sage', 'var(--pastel-sage)', '#cfdcb6'],
-    ['Brand', 'var(--accent)', '#49a5a2'],
-  ]
-  const cardPatterns = [
-    ['KPI-Karte', 'Eine kleine Zahl, ein kurzer Titel, optional ein Pastell-Akzent.'],
-    ['Arbeitskarte', 'Wiederholbare Einheit fuer Aufgaben, Signale oder Status.'],
-    ['Freigabezone', 'Eigener, leicht getoenter Bereich fuer menschliche Entscheidungen.'],
-    ['Leerzustand', 'Ruhiger Hinweis statt Fehlermeldungsrauschen.'],
-  ]
-
-  return (
-    <section className="design-page">
-      <SectionIntro
-        eyebrow="Designvorgabe"
-        title="Icons, Farben, Cards und Seitennavigation."
-        text="Diese Seite sammelt die sichtbaren Bausteine der Blanko-Oberflaeche als wiederverwendbare Vorlage."
-      />
-
-      <div className="design-layout">
-        <aside className="design-sticky-nav">
-          <span>Bausteine</span>
-          {['Icons', 'Pastellfarben', 'Cards', 'Sticky Navigation'].map((item, index) => (
-            <a key={item} href={`#design-${index}`}>
-              <CircleDot size={14} />
-              {item}
-            </a>
-          ))}
-        </aside>
-
-        <div className="design-sections">
-          <section id="design-0" className="design-panel">
-            <header>
-              <h3>Icon-Set</h3>
-              <p>Alle Hauptbereiche nutzen Lucide-Icons mit duennem Strich. Die Farbe kommt aus dem jeweiligen Pastellton.</p>
-            </header>
-            <div className="icon-grid">
-              {iconSamples.map((item) => (
-                <article key={item.title} className="icon-card" data-tone={item.tone}>
-                  <span>
-                    <item.icon size={19} />
-                  </span>
-                  <strong>{item.title}</strong>
-                  <small>{item.detail}</small>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section id="design-1" className="design-panel">
-            <header>
-              <h3>Pastellfarben</h3>
-              <p>Pastellfarben sind Akzente, keine Flaechendominanz. Sie markieren Status, aktive Elemente und Sonderbereiche.</p>
-            </header>
-            <div className="swatch-grid">
-              {swatches.map(([name, value, hex]) => (
-                <article key={name} className="swatch-card">
-                  <span style={{ '--swatch': value } as CSSProperties} />
-                  <strong>{name}</strong>
-                  <small>{hex}</small>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section id="design-2" className="design-panel">
-            <header>
-              <h3>Card-Aufbau</h3>
-              <p>Karten bleiben flach, klar gerahmt und maximal leicht gehoben. Radius und Linien sind bewusst klein gehalten.</p>
-            </header>
-            <div className="card-pattern-grid">
-              {cardPatterns.map(([title, text], index) => (
-                <article key={title} className="dashboard-card card-pattern">
-                  <header>
-                    <span>
-                      {index === 0 ? <Database size={18} /> : index === 1 ? <ClipboardList size={18} /> : index === 2 ? <ShieldCheck size={18} /> : <Sparkles size={18} />}
-                      {title}
-                    </span>
-                  </header>
-                  <p>{text}</p>
-                  {index === 0 ? (
-                    <div className="metric-grid">
-                      <Metric label="Wert" value="0" accent />
-                      <Metric label="Trend" value="0%" />
-                    </div>
-                  ) : null}
-                  {index === 2 ? (
-                    <div className="approval-zone">
-                      <ShieldCheck size={18} />
-                      <div>
-                        <strong>Freigabe</strong>
-                        <p>Aktionen bleiben sichtbar blockiert.</p>
-                      </div>
-                    </div>
-                  ) : null}
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section id="design-3" className="design-panel">
-            <header>
-              <h3>Sticky Seitennavigation</h3>
-              <p>Unterseiten mit Kategorien nutzen links eine zweite Navigation, die beim Scrollen stehen bleibt.</p>
-            </header>
-            <div className="sticky-demo">
-              <aside className="section-nav section-nav--demo">
-                {[
-                  ['Heartbeats', Activity],
-                  ['Cron Jobs', CalendarClock],
-                  ['Waechter', ShieldCheck],
-                  ['Skills', Code2],
-                ].map(([label, Icon], index) => {
-                  const DemoIcon = Icon as LucideIcon
-                  return (
-                    <button key={label as string} type="button" aria-pressed={index === 1}>
-                      <DemoIcon size={17} />
-                      <span>
-                        <strong>{label as string}</strong>
-                        <small>Beispielbereich</small>
-                      </span>
-                      <em>0</em>
-                    </button>
-                  )
-                })}
-              </aside>
-              <div className="content-panel sticky-demo__content">
-                <BlankRow label="Rechte Detailflaeche mit Karten, Tabellen oder Leerzustaenden" />
-                <BlankRow label="Die linke Auswahl bleibt beim Scrollen sichtbar" />
-              </div>
-            </div>
-          </section>
+        </header>
+        <p className="cb-inventory__notice"><AppIcon name="shieldCheck" size={16} /> Blanko-Kontrollseite mit denselben Reitern und Karten, aber ohne laufende Prozesse.</p>
+        <div className="cb-control-layout">
+          <aside className="cb-blank-sticky-nav">
+            {['Übersicht', 'Cronjobs', 'Skills', 'System'].map((item) => <button key={item} type="button">{item}</button>)}
+          </aside>
+          <div className="cb-blank-card-grid">
+            {['Runtime', 'Cronjobs', 'Freigaben', 'Logs'].map((item, index) => (
+              <article className="cb-blank-card" key={item}>
+                <AppIcon name={index === 0 ? 'runtime' : index === 1 ? 'activity' : index === 2 ? 'shieldCheck' : 'terminal'} size={20} />
+                <h3>{item}</h3>
+                <p>Neutrale Karte mit Status, Beschreibung und Platz für Aktionen.</p>
+              </article>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -900,32 +701,24 @@ function DesignSystemPage() {
 }
 
 function DocsPage() {
-  const sections = [
-    ['Design', 'Pastel V2 nutzt einen charcoal Grund, helle Schrift und Pastellfarben nur fuer Akzente, Status und wichtige Karten.'],
-    ['Designsystem', 'Icons, Pastellfarben, Card-Muster und Sticky-Seitennavigation sind als eigene Vorlage sichtbar.'],
-    ['Shell', 'Links steht die Navigation. Oben zeigt die Kopfzeile Seite, Zustand und globale Aktionen. Die Seitenflaeche bleibt ruhig und dicht.'],
-    ['Dashboard', 'Die Startseite besteht aus frei sortierbaren Kacheln. Nutzer koennen Kacheln entfernen, hinzufuegen, fixieren und zuruecksetzen.'],
-    ['Chat', 'Der Chat zeigt lokale Nachrichten, simuliertes Streaming, Prozessanzeige, Composer und Freigabehinweise ohne API-Verbindung.'],
-    ['Kontrolle', 'Alle technischen Bereiche liegen in Reitern: Heartbeats, Cronjobs, Waechter, Skills, Plugins und Verbindungen.'],
-    ['Website Tracking', 'Die Tracking-Seite ist fuer Kennzahlen, Verlauf, Funnel und Top-Listen gebaut. Diese Blanko-Version zeigt nur neutrale Demo-Werte.'],
-    ['Workflows', 'Workflows folgen links der Auswahl und rechts einer Detailansicht mit Pipeline, Status und Freigabezone.'],
-    ['Logbuch', 'Das Logbuch ist ein filterbarer Nachweis fuer Aktionen. Sensible Quellen koennen ausgeblendet werden.'],
-    ['Ziele & Ideen', 'Eine Seite mit Umschalter zwischen Ideenliste und Zielplanung. Die Vorlage speichert Eintraege lokal im Browser.'],
-  ]
-
   return (
-    <section className="docs-page">
-      <SectionIntro
-        eyebrow="Blanko-Dokumentation"
-        title="Aufbau, Design und Funktionen des Dashboards."
-        text="Diese Dokumentation beschreibt die Struktur ohne Inhalte, Zugangsdaten, Kundendaten oder echte Automationen."
-      />
-      <div className="docs-list">
-        {sections.map(([title, text]) => (
-          <article key={title} className="doc-block">
-            <h3>{title}</h3>
-            <p>{text}</p>
-          </article>
+    <section className="cb-docs-page">
+      <aside className="cb-docs-page__side">
+        {['Start', 'Aufbau', 'Themes', 'Chat', 'Einrichtung'].map((item) => <a key={item} href={`#${item}`}>{item}</a>)}
+      </aside>
+      <div className="cb-docs-page__body">
+        <header className="cb-docs-page__intro" id="Start">
+          <p>Blanko Dokumentation</p>
+          <h1>Aufbau der Agent Desk Oberfläche</h1>
+          <span>Diese Seite beschreibt Shell, Navigation, Themes, Karten, Chat-Verhalten und lokale Einrichtung als neutrale Vorlage.</span>
+        </header>
+        {['Aufbau', 'Themes', 'Chat', 'Einrichtung'].map((section) => (
+          <section className="cb-docs-section" id={section} key={section}>
+            <span>{section}</span>
+            <h2>{section === 'Aufbau' ? 'Eine feste Shell trägt alle Arbeitsseiten.' : `${section} als austauschbares Muster.`}</h2>
+            <p>Die Inhalte sind Platzhalter. Die Funktion, Abstände, Sticky-Navigation und Kartenstruktur bleiben erhalten, damit ein neuer lokaler Agent darauf aufsetzen kann.</p>
+            <pre><code>{`npm install\nnpm run dev`}</code></pre>
+          </section>
         ))}
       </div>
     </section>
@@ -933,257 +726,169 @@ function DocsPage() {
 }
 
 function WorkflowsPage() {
-  const [active, setActive] = useState('email')
-  const workflows = [
-    { id: 'email', title: 'E-Mail', state: 'Vorlage', icon: Mail },
-    { id: 'documents', title: 'Dokumente', state: 'Vorlage', icon: FileText },
-    { id: 'leads', title: 'Leads', state: 'Vorlage', icon: Bot },
-  ]
-
+  const [active, setActive] = useState('briefing')
   return (
-    <section className="two-column-page">
-      <aside className="section-nav">
-        {workflows.map((item) => (
-          <button key={item.id} type="button" aria-pressed={active === item.id} onClick={() => setActive(item.id)}>
-            <item.icon size={17} />
-            <span>{item.title}</span>
-            <em>{item.state}</em>
+    <section className="cb-workflows-page">
+      <aside className="cb-workflows-nav">
+        <span className="cb-workflows-nav__label">Workflows</span>
+        {[
+          ['briefing', 'Briefing', 'Sammeln, prüfen, freigeben'],
+          ['handoff', 'Handoff', 'Übergabe an einen Agenten'],
+          ['review', 'Review', 'Kontrolle und Logbuch'],
+        ].map(([id, title, meta]) => (
+          <button key={id} className="cb-workflows-nav__button" type="button" aria-pressed={active === id} onClick={() => setActive(id)}>
+            <AppIcon name={id === 'briefing' ? 'listChecks' : id === 'handoff' ? 'bot' : 'shieldCheck'} size={16} />
+            <span><strong>{title}</strong><small>{meta}</small></span><em>Blanko</em>
           </button>
         ))}
       </aside>
-      <div className="content-panel">
-        <SectionIntro
-          eyebrow="Workflow-Zentrale"
-          title={workflows.find((item) => item.id === active)?.title ?? 'Workflow'}
-          text="Jeder Workflow bekommt links einen Eintrag und rechts Pipeline, Status, Freigaben und Verlauf."
-        />
-        <div className="pipeline">
-          {['Eingang', 'Erkennung', 'Pruefung', 'Aktion', 'Archiv'].map((step, index) => (
-            <article key={step}>
-              <span>{index + 1}</span>
-              <strong>{step}</strong>
-              <p>Blanko-Stufe ohne Live-Anschluss.</p>
-            </article>
+      <main className="cb-workflows-main">
+        <header className="cb-workflows-header">
+          <div><span>Workflow Vorlage</span><h1>{active}</h1><p>Neutraler Ablauf ohne echte Kampagne, Mailbox oder Kundendaten.</p></div>
+        </header>
+        <div className="cb-blank-card-grid">
+          {['Eingang', 'Analyse', 'Freigabe', 'Ausgabe'].map((step) => (
+            <article className="cb-blank-card" key={step}><h3>{step}</h3><p>Beispielschritt mit Status, Verantwortlichkeit und Aktion.</p></article>
           ))}
         </div>
-        <div className="approval-zone">
-          <ShieldCheck size={18} />
-          <div>
-            <strong>Freigabezone</strong>
-            <p>Verbindliche Aktionen bleiben hier blockiert, bis ein Mensch sie freigibt.</p>
-          </div>
-        </div>
-      </div>
+      </main>
     </section>
   )
 }
 
 function LogbookPage() {
-  const [query, setQuery] = useState('')
-  const rows = [
-    { action: 'Angelegt', area: 'Idee', text: 'Beispielaktion ohne echten Inhalt' },
-    { action: 'Geaendert', area: 'Dashboard', text: 'Kachelreihenfolge lokal angepasst' },
-    { action: 'Gelesen', area: 'Website', text: 'Demo-Kennzahlen angezeigt' },
-  ]
-  const filtered = rows.filter((row) => `${row.action} ${row.area} ${row.text}`.toLowerCase().includes(query.toLowerCase()))
-
   return (
-    <section className="logbook-page">
-      <SectionIntro
-        eyebrow="Nachweis"
-        title="Filterbares Logbuch mit ruhiger Zeitleiste."
-        text="In der echten App zeigt es dauerhaft gespeicherte Aktionen. Diese Vorlage nutzt nur neutrale Beispielzeilen."
-      />
-      <label className="searchbox">
-        <Search size={15} />
-        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Logbuch durchsuchen" />
-      </label>
-      <div className="timeline">
-        {filtered.map((row, index) => (
-          <article key={`${row.action}-${index}`}>
-            <span>{row.action}</span>
-            <strong>{row.area}</strong>
-            <p>{row.text}</p>
-          </article>
-        ))}
-        {!filtered.length ? <div className="empty-state">Keine passenden Eintraege.</div> : null}
+    <section className="cb-logbook">
+      <header className="cb-logbook__head">
+        <div className="cb-logbook__title">
+          <AppIcon name="shieldCheck" size={22} />
+          <div><h1>Logbuch</h1><p>Lokaler Nachweisbereich mit neutralen Beispielereignissen.</p></div>
+        </div>
+        <span className="cb-logbook__count">4 Einträge</span>
+      </header>
+      <div className="cb-logbook__filters">
+        <label className="cb-logbook__search"><AppIcon name="search" size={15} /><input placeholder="Suchen" /></label>
+        <select><option>Alle Typen</option></select>
+      </div>
+      <div className="cb-logbook__list">
+        <div className="cb-logbook__group">
+          <span className="cb-logbook__day">Heute</span>
+          {['create', 'update', 'read', 'delete'].map((tone, index) => (
+            <article className="cb-logbook__row" data-tone={tone} key={tone}>
+              <div className="cb-blank-log-row"><strong>Beispielereignis {index + 1}</strong><span>Keine echten Daten, nur Struktur und Tonalität.</span></div>
+            </article>
+          ))}
+        </div>
       </div>
     </section>
   )
 }
 
 function IdeasPage() {
-  const [mode, setMode] = useState<'ideas' | 'goals'>('ideas')
-  const [ideas, setIdeas] = useState<Idea[]>(() => readStorage('blank.ideas', []))
-  const [goals, setGoals] = useState<Goal[]>(() => readStorage('blank.goals', []))
-  const [draft, setDraft] = useState('')
-
-  useEffect(() => writeStorage('blank.ideas', ideas), [ideas])
-  useEffect(() => writeStorage('blank.goals', goals), [goals])
-
-  function submit(event: FormEvent) {
-    event.preventDefault()
-    const value = draft.trim()
-    if (!value) return
-    if (mode === 'ideas') {
-      setIdeas((items) => [{ id: uid(), title: value, body: '', status: 'Offen' }, ...items])
-    } else {
-      setGoals((items) => [{ id: uid(), title: value, horizon: 'Naechster Schritt', progress: 0 }, ...items])
-    }
-    setDraft('')
-  }
-
   return (
-    <section className="ideas-page">
-      <div className="mode-switch" role="tablist" aria-label="Ansicht">
-        <button type="button" aria-selected={mode === 'ideas'} onClick={() => setMode('ideas')}>
-          <Sparkles size={15} />
-          Ideen
-        </button>
-        <button type="button" aria-selected={mode === 'goals'} onClick={() => setMode('goals')}>
-          <Target size={15} />
-          Ziele
-        </button>
-      </div>
-      <form className="composer" onSubmit={submit}>
-        <input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder={mode === 'ideas' ? 'Neue Idee' : 'Neues Ziel'} />
-        <button type="submit">
-          <Plus size={16} />
-          Hinzufuegen
-        </button>
-      </form>
-
-      {mode === 'ideas' ? (
-        <div className="idea-list">
-          {ideas.map((idea) => (
-            <article key={idea.id}>
-              <strong>{idea.title}</strong>
-              <select
-                value={idea.status}
-                onChange={(event) =>
-                  setIdeas((items) =>
-                    items.map((item) =>
-                      item.id === idea.id ? { ...item, status: event.target.value as Idea['status'] } : item,
-                    ),
-                  )
-                }
-              >
-                <option>Offen</option>
-                <option>Naechster Schritt</option>
-                <option>Geparkt</option>
-                <option>Erledigt</option>
-              </select>
-            </article>
-          ))}
-          {!ideas.length ? <div className="empty-state">Noch keine Ideen.</div> : null}
+    <section className="cb-board-page">
+      <div className="cb-board-page__body">
+        <header className="cb-board-head">
+          <div><span>Planung</span><h1>Ziele & Ideen</h1><p>Kanban- und Listenmuster für lokale Planung.</p></div>
+        </header>
+        <div className="cb-board-toggle">
+          <button type="button" data-active="true">Ideen</button>
+          <button type="button">Ziele</button>
         </div>
-      ) : (
-        <div className="goal-board">
-          {['Diese Woche', 'Dieser Monat', 'Quartal', 'Langfristig'].map((horizon) => (
-            <section key={horizon}>
-              <h3>{horizon}</h3>
-              {goals
-                .filter((goal) => goal.horizon === horizon || (horizon === 'Diese Woche' && goal.horizon === 'Naechster Schritt'))
-                .map((goal) => (
-                  <article key={goal.id}>
-                    <strong>{goal.title}</strong>
-                    <input
-                      type="range"
-                      min={0}
-                      max={100}
-                      value={goal.progress}
-                      onChange={(event) =>
-                        setGoals((items) =>
-                          items.map((item) => (item.id === goal.id ? { ...item, progress: Number(event.target.value) } : item)),
-                        )
-                      }
-                    />
-                    <span>{goal.progress}%</span>
-                  </article>
-                ))}
+        <div className="cb-blank-kanban">
+          {['Offen', 'Nächster Schritt', 'Geparkt'].map((column) => (
+            <section className="cb-blank-card" key={column}>
+              <h3>{column}</h3>
+              <p>Beispielkarte für eine neutrale Idee.</p>
+              <p>Priorität, Notiz und nächster Schritt können lokal ergänzt werden.</p>
             </section>
           ))}
         </div>
-      )}
+      </div>
     </section>
   )
 }
 
 function WebsitePage() {
-  const [range, setRange] = useState('30')
-  const points = useMemo(() => [12, 18, 9, 24, 31, 16, 22, 27, 14, 20, 33, 26], [])
-  const max = Math.max(...points)
   return (
-    <section className="website-page">
-      <div className="website-head">
-        <SectionIntro
-          eyebrow="Tracking"
-          title="Website-Signale ohne Live-Anschluss."
-          text="Die Seite ist fuer reale Analytics vorbereitet, zeigt hier aber nur neutrale Demo-Zahlen."
-        />
-        <select value={range} onChange={(event) => setRange(event.target.value)}>
-          <option value="7">7 Tage</option>
-          <option value="30">30 Tage</option>
-          <option value="90">90 Tage</option>
-        </select>
-      </div>
-      <div className="metric-grid metric-grid--wide">
-        <Metric label="Seitenaufrufe" value="0" />
-        <Metric label="Sessions" value="0" />
-        <Metric label="Besucher" value="0" />
-        <Metric label="Leads" value="0" accent />
-        <Metric label="Conversion" value="0%" />
-        <Metric label="Events" value="0" />
-      </div>
-      <div className="analytics-grid">
-        <article className="chart-card">
-          <h3>Verlauf</h3>
-          <div className="bar-chart">
-            {points.map((value, index) => (
-              <span key={index} style={{ '--bar-height': `${Math.round((value / max) * 100)}%` } as CSSProperties} />
-            ))}
+    <section className="cb-website">
+      <div className="cb-website__sticky">
+        <div className="cb-website__head">
+          <h1>Website Tracking</h1>
+          <span className="cb-website__sub">Blanko-Signale ohne echte Domain</span>
+        </div>
+        <div className="cb-website__bar">
+          <div className="cb-website__tabs"><button type="button" aria-pressed="true">Tracking Übersicht</button></div>
+          <div className="cb-website__controls">
+            <select className="cb-website__select"><option>Letzte 7 Tage</option></select>
+            <button className="cb-website__go" type="button">Aktualisieren</button>
           </div>
-        </article>
-        <TopList title="Funnel" items={['Aufruf', 'CTA Klick', 'Formularstart', 'Lead']} />
-        <TopList title="Top-Seiten" items={['/start', '/angebot', '/kontakt']} />
-        <TopList title="Kampagnen" items={['Direkt', 'Suche', 'Newsletter']} />
+        </div>
+      </div>
+      <div className="cb-blank-card-grid">
+        {['Besuche', 'Kontaktklicks', 'Formulare', 'Kampagnen'].map((item, index) => (
+          <article className="cb-blank-card" key={item}>
+            <h3>{item}</h3>
+            <strong>{[124, 18, 7, 4][index]}</strong>
+            <p>Neutrale Kennzahl als Platzhalter für spätere echte Messpunkte.</p>
+          </article>
+        ))}
       </div>
     </section>
   )
 }
 
-function TopList({ title, items }: { title: string; items: string[] }) {
+function DesignPage() {
+  const swatches = ['--cb-pastel-blush', '--cb-pastel-mint', '--cb-pastel-lavender', '--cb-pastel-butter', '--cb-pastel-sky', '--cb-pastel-peach', '--cb-pastel-sage', '--cb-pastel-rose']
+  const icons: AppIconName[] = ['focus', 'chat', 'calendar', 'target', 'users', 'home', 'globe', 'share', 'activity', 'bookOpen', 'listChecks', 'shieldCheck']
   return (
-    <article className="top-list">
-      <h3>{title}</h3>
-      {items.map((item, index) => (
-        <div key={item}>
-          <span>{item}</span>
-          <em>{index === 0 ? 0 : ''}</em>
-        </div>
-      ))}
-    </article>
+    <section className="cb-page">
+      <header className="cb-page__intro">
+        <h1>Designsystem</h1>
+        <p>Farben, Icons, Karten, Radius, Sidebar und Sticky-Muster sind als sichtbare Vorgabe im Repo enthalten.</p>
+      </header>
+      <div className="cb-blank-swatch-grid">
+        {swatches.map((swatch) => <span key={swatch} style={{ background: `var(${swatch})` }}>{swatch}</span>)}
+      </div>
+      <div className="cb-blank-icon-grid">
+        {icons.map((icon) => <span key={icon}><AppIcon name={icon} size={18} />{icon}</span>)}
+      </div>
+      <div className="cb-blank-card-grid">
+        <article className="cb-blank-card"><h3>Standard Card</h3><p>Eine einfache Karte mit Rand, ruhiger Fläche und kompaktem Text.</p></article>
+        <article className="cb-blank-card cb-blank-card--pastel"><h3>Pastell Card</h3><p>Akzentkarte für Status, Icon-Kachel oder kurze Hinweise.</p></article>
+      </div>
+    </section>
   )
 }
 
-function SectionIntro({ eyebrow, title, text }: { eyebrow: string; title: string; text: string }) {
+function GenericPage({ title, icon }: { title: string; icon: AppIconName }) {
   return (
-    <header className="section-intro">
-      <span>{eyebrow}</span>
-      <h2>{title}</h2>
-      <p>{text}</p>
-    </header>
+    <section className="cb-page">
+      <header className="cb-page__intro">
+        <h1>{title}</h1>
+        <p>Blanko-Unterseite im echten Seitenrahmen. Inhalte sind neutral, Aufbau und Kartenmuster bleiben als Vorlage erhalten.</p>
+      </header>
+      <div className="cb-blank-card-grid">
+        {['Übersicht', 'Liste', 'Detail', 'Aktionen'].map((item) => (
+          <article className="cb-blank-card" key={item}>
+            <AppIcon name={icon} size={20} />
+            <h3>{item}</h3>
+            <p>Platzhalter für den späteren Fachinhalt.</p>
+          </article>
+        ))}
+      </div>
+    </section>
   )
 }
 
-function BlankRow({ label }: { label: string }) {
-  return (
-    <div className="table-row">
-      <span>{label}</span>
-      <em>leer</em>
-      <small>nicht geplant</small>
-    </div>
-  )
+function titleForPage(page: PageId) {
+  return navItems.find((item) => item.id === page)?.title ?? 'Agent Desk'
+}
+
+function nextTheme(theme: ThemeMode): ThemeMode {
+  if (theme === 'light') return 'dark'
+  if (theme === 'dark') return 'charcoal'
+  return 'light'
 }
 
 export default App

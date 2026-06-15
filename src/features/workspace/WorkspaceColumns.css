@@ -1,0 +1,115 @@
+.cb-columns {
+  --cb-column-count: 1;
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  grid-template-columns: repeat(var(--cb-column-count), minmax(320px, 1fr));
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.cb-columns::-webkit-scrollbar {
+  display: none;
+}
+
+.cb-workspace-column {
+  position: relative;
+  min-width: 320px;
+  max-width: none;
+  min-height: 0;
+  border-right: 1px solid var(--cb-border);
+  padding: 0 var(--cb-space-4) var(--cb-space-5);
+}
+
+.cb-columns--single .cb-workspace-column {
+  border-right: 0;
+}
+
+.cb-workspace-column--active {
+  box-shadow: inset 2px 0 0 var(--cb-brand);
+}
+
+[data-theme='charcoal'] .cb-workspace-column--active {
+  box-shadow: inset 2px 0 0 var(--cb-brand);
+}
+
+.cb-workspace-column__close-hint {
+  display: none;
+}
+
+.cb-workspace-column__close {
+  position: absolute;
+  top: max(var(--cb-space-2), env(safe-area-inset-top));
+  left: max(var(--cb-space-2), env(safe-area-inset-left));
+  z-index: calc(var(--cb-z-sticky) + 1);
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-radius: var(--cb-radius-md);
+  background: transparent;
+  color: var(--cb-text-3);
+  cursor: pointer;
+  padding: 0;
+  transition:
+    color 120ms ease,
+    opacity 120ms ease;
+}
+
+.cb-workspace-column__close:hover {
+  color: var(--cb-text-1);
+}
+
+@media (max-width: 819px) {
+  .cb-columns {
+    display: flex;
+    flex-wrap: nowrap;
+    grid-template-columns: none;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-x: contain;
+  }
+
+  .cb-workspace-column {
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    border-right: 0;
+    padding: 0;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .cb-workspace-column--active,
+  [data-theme='charcoal'] .cb-workspace-column--active {
+    box-shadow: none;
+  }
+
+  .cb-workspace-column .cb-composer-stack {
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    justify-self: center;
+  }
+
+  .cb-workspace-column__close {
+    display: none;
+  }
+}
+
+@container cb-route-content (max-width: 760px) {
+  .cb-columns {
+    grid-template-columns: repeat(var(--cb-column-count), minmax(min(100%, 300px), 1fr));
+  }
+
+  .cb-workspace-column {
+    min-width: 0;
+    padding: 0 var(--cb-space-3) var(--cb-space-4);
+  }
+}

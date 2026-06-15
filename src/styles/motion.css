@@ -1,0 +1,88 @@
+.cb-workspace-column {
+  animation: cb-column-in 180ms ease both;
+  animation-delay: calc((var(--cb-column-index, 0)) * 60ms);
+}
+
+.cb-workspace-column .cb-composer-stack {
+  animation: cb-composer-in 180ms ease both;
+  animation-delay: calc((var(--cb-column-index, 0)) * 60ms + 90ms);
+}
+
+.cb-composer-stack,
+.cb-composer,
+.cb-projects button,
+.cb-projects select,
+.cb-sidebar__button {
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    color 120ms ease,
+    transform 120ms ease;
+}
+
+@keyframes cb-column-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--cb-space-2));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cb-composer-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--cb-space-2));
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cb-cursor-pulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes cb-runtime-pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}
+
+@media (max-width: 819px) {
+  .cb-workspace-column,
+  .cb-workspace-column .cb-composer-stack {
+    animation: none;
+  }
+}
