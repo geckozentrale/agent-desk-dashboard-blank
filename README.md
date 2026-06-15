@@ -1,46 +1,31 @@
 # Agent Desk Dashboard Blank
 
-Eine oeffentliche Blanko-Version des Agent-Desk-Dashboards. Das Projekt zeigt Aufbau, Seitenlogik und Pastel-V2-Design ohne echte Inhalte, Konten, Tokens, Kundendaten, E-Mail-Verbindungen oder produktive Workflows.
+Oeffentliche Blanko-Version eines Agent-Desk-Dashboards. Das Repo zeigt Seitenaufbau, Designsystem und Grundfunktionen ohne echte Inhalte, Konten, Tokens, Kundendaten, E-Mail-Verbindungen, Runtime oder produktive Workflows.
 
-## Enthalten
+Die vollstaendige Hauptdokumentation liegt in `DESIGN.md`. Dort stehen Einrichtung, Seitenbeschreibung, Card-Aufbau, Icon- und Farbvorgaben, Chat-Verhalten, lokale Demo-Speicherung, Split View und die Regeln fuer eine spaetere Anbindung an einen neuen lokalen Agenten.
 
-- React/Vite Dashboard-Shell mit linker Navigation
-- Pastel V2 als Standardtheme, plus Light und Dark
-- Dashboard-Startseite mit sortierbaren Kacheln
-- Chat-Seite mit Composer, lokalem Verlauf, Prozessanzeige und simuliertem Streaming
-- Kontrollseite mit Reitern fuer Heartbeats, Cronjobs, Waechter, Skills, Plugins und Verbindungen
-- Designsystem-Seite mit Icon-Set, Pastellfarben, Card-Mustern und Sticky-Seitennavigation
-- Dokumentationsseite als neutrale Struktur- und Designbeschreibung
-- Workflow-Zentrale mit Pipeline und Freigabezone
-- Logbuch mit Suche und neutraler Demo-Zeitleiste
-- Ziele & Ideen mit lokaler Speicherung im Browser
-- Website-Tracking-Seite mit KPI-Karten, Verlauf und Listen als Blanko-Muster
-- Split View fuer zwei parallele Dashboard-Seiten
-- lokale Speicherung im Browser fuer Demo-Notizen, Aufgaben, Ideen, Ziele und Chatverlauf
-
-## Nicht enthalten
-
-- keine echten Seiteninhalte aus einem produktiven Dashboard
-- keine Runtime- oder Backend-Verknuepfung
-- keine E-Mail-Konten
-- keine Kundendaten
-- keine API-Keys oder Secrets
-- keine Proxy-Konfiguration zu internen Diensten
-- keine produktiven Background-Jobs
-
-## Lokal starten
+## Schnellstart
 
 ```bash
+git clone https://github.com/geckozentrale/agent-desk-dashboard-blank.git
+cd agent-desk-dashboard-blank
 npm install
 npm run dev
 ```
 
-Danach Vite im Browser oeffnen. Fuer einen Production-Build:
+Fuer einen pruefbaren Build:
 
 ```bash
 npm run build
 ```
 
-## Design
+## Kurzueberblick
 
-Die vollstaendige Beschreibung liegt in `DESIGN.md`.
+- React/Vite Dashboard-Shell mit linker Sticky-Navigation
+- Pastel V2 als Standardtheme, plus Light und Dark
+- Dashboard-Startseite mit sortierbaren Kacheln
+- Chat-Seite mit Composer, lokalem Verlauf, Prozessanzeige und simuliertem Streaming
+- Kontrollseite mit Reitern fuer Heartbeats, Cronjobs, Waechter, Skills, Plugins und Verbindungen
+- Designsystem-Seite mit Icon-Set, Pastellfarben, Card-Mustern und Sticky-Seitennavigation
+- Dokumentationsseite, Workflow-Zentrale, Logbuch, Ziele & Ideen und Website Tracking als neutrale Blanko-Seiten
+- keine Backend-Aufrufe, keine API-Keys, keine Proxy-Konfiguration, keine produktiven Jobs

@@ -1,6 +1,75 @@
-# Design- und Aufbau-Beschreibung
+# Agent Desk Dashboard Blank, Design, Aufbau und Einrichtung
 
-Diese Vorlage beschreibt das Dashboard als leeres Produktmuster. Die Struktur ist an einem operativen Agent-Desk-Dashboard ausgerichtet, bleibt aber bewusst ohne reale Daten, Kundennamen, Mailboxen, Tokens oder produktive Automationen.
+Diese Datei ist die zentrale Beschreibung fuer das oeffentliche Blanko-Repo. Sie erklaert Design, Seitenaufbau, Grundfunktionen, lokale Einrichtung und die Regeln fuer eine spaetere Nutzung mit einem neuen lokalen Agenten.
+
+Die Vorlage ist ein leeres Produktmuster. Die Struktur ist an einem operativen Agent-Desk-Dashboard ausgerichtet, bleibt aber bewusst ohne reale Daten, Kundennamen, Mailboxen, Tokens, interne Pfade, Runtime-Anschluesse oder produktive Automationen.
+
+## Schnellstart fuer ein neues lokales Setup
+
+Voraussetzung ist ein Rechner mit Node.js und npm. Die Vorlage braucht keine Datenbank, keinen lokalen Dienst und keine API-Schluessel.
+
+```bash
+git clone https://github.com/geckozentrale/agent-desk-dashboard-blank.git
+cd agent-desk-dashboard-blank
+npm install
+npm run dev
+```
+
+Danach zeigt Vite im Terminal eine lokale Adresse. Diese Adresse im Browser oeffnen. Fuer einen Produktions-Build:
+
+```bash
+npm run build
+```
+
+Zum lokalen Vorabtest des Builds:
+
+```bash
+npm run preview
+```
+
+Die Vorlage kann direkt als Ausgangspunkt fuer einen neuen lokalen Agenten genutzt werden. Dafuer zuerst das Design und die Seiten so lassen, dann schrittweise eigene Adapter anlegen. Adapter sind die spaeteren Verbindungsstellen zu einem Backend, einer Agent-Runtime, Speicher, E-Mail oder Analytics. In diesem Repo sind solche Adapter absichtlich nicht vorhanden.
+
+## Repo-Inhalt
+
+Die Vorlage ist bewusst klein gehalten.
+
+- `src/App.tsx`: komplette Demo-App mit Navigation, Seiten, lokalen Demo-Funktionen und Theme-Schalter
+- `src/styles.css`: alle Farben, Layouts, Cards, Sticky-Navigation, responsive Regeln und Theme-Tokens
+- `src/main.tsx`: React-Einstieg
+- `README.md`: kurzer Einstieg
+- `DESIGN.md`: diese vollstaendige Hauptdokumentation
+- `package.json`: Scripts und Abhaengigkeiten
+- `.env.example`: bewusst leere Vorlage, weil die Blanko-Version keine Secrets braucht
+
+Nicht im Repo enthalten sind produktive Inhalte, Umgebungsvariablen, Servercode, Worker, Cronjobs, Proxy-Regeln, Datenbankzugriffe und API-Clients.
+
+## Technische Basis
+
+Das Projekt nutzt React, Vite, TypeScript und lucide-react. Lucide liefert die Linien-Icons. Es gibt keine State-Management-Bibliothek und keinen Router. Die Seiten werden lokal in einer einzigen App-Datei ueber einen Seitenzustand gewechselt. Das macht die Vorlage leicht lesbar und einfach kopierbar.
+
+Demo-Daten werden nur im Browser gespeichert, ueber localStorage. Das betrifft Kachelreihenfolge, Theme, lokale Notizen, Aufgaben, Ideen, Ziele und den Demo-Chatverlauf. Wenn localStorage blockiert ist, bleibt die App trotzdem nutzbar, nur ohne dauerhafte Demo-Speicherung.
+
+## Sicherheitsgrenzen der Blanko-Version
+
+Die Vorlage ist oeffentlich geeignet, weil sie keine produktiven Verbindungen enthaelt.
+
+Ausdruecklich nicht enthalten:
+
+- echte Kundendaten
+- echte E-Mail-Adressen
+- echte Website-Domains aus Projekten
+- Tokens
+- Secrets
+- interne Ports und interne Pfade
+- produktive API-Endpunkte
+- Proxy-Konfigurationen
+- konkrete Runbooks
+- alte Chat- oder Logbuchinhalte
+- produktive Background-Jobs
+- echte Agent-Runtime
+- KI-, E-Mail-, Analytics-, Datenbank- oder Memory-Anbindung
+
+Wenn aus dieser Vorlage spaeter wieder ein echtes Dashboard wird, sollten echte Daten nur ueber klar getrennte Adapter eingebunden werden. Die UI soll auch dann weiter mit Leerzustaenden funktionieren, wenn kein Backend erreichbar ist.
 
 ## Grundidee
 
@@ -158,7 +227,7 @@ Verhalten:
 - Antworten werden als simuliertes Streaming schrittweise eingeblendet
 - waehrend des Antwortens zeigt die Prozessanzeige den laufenden Zustand
 - der Composer sperrt weiteres Senden, solange die Demo-Antwort laeuft
-- es gibt keine Verbindung zu OpenAI, einem Backend, Websocket, Memory, E-Mail oder anderen Diensten
+- es gibt keine Verbindung zu einem KI-Anbieter, Backend, Websocket, Memory, E-Mail oder anderen Diensten
 
 Die sichtbare Prozessanzeige ist fuer echte Zwischenstaende gedacht: Kontext sammeln, pruefen, schreiben, Freigaben erkennen. In dieser Vorlage ist sie rein visuell. Die Freigabezone macht klar, dass Aktionen mit Aussenwirkung spaeter nicht automatisch passieren sollen.
 
@@ -297,7 +366,7 @@ KPI-Muster:
 - Conversion
 - Events
 
-Die Blanko-Version zeigt neutrale Nullwerte und eine Demo-Chartform, damit Aufbau und Verhalten sichtbar sind. Es gibt keine Verbindung zu Analytics, Supabase, Vercel oder anderen Diensten.
+Die Blanko-Version zeigt neutrale Nullwerte und eine Demo-Chartform, damit Aufbau und Verhalten sichtbar sind. Es gibt keine Verbindung zu Analytics, Hosting-Plattformen, Datenbanken oder anderen Diensten.
 
 ## Interaktionsmuster
 
@@ -313,20 +382,75 @@ Die App nutzt wiederkehrende Muster:
 - leere Zustaende statt Fehlermeldungsrauschen
 - lokale Speicherung nur fuer einfache Demo-Daten
 
-## Sicherheitsprinzip fuer die Blanko-Version
+## Design-Tokens und wiederverwendbare Bausteine
 
-Diese Vorlage darf oeffentlich sein, weil sie keine produktiven Informationen enthaelt.
+Die wichtigsten Designvorgaben liegen als CSS-Variablen am Anfang von `src/styles.css`. Dadurch kann ein neues Dashboard die Optik uebernehmen, ohne alle Komponenten neu zu erfinden.
 
-Ausdruecklich nicht enthalten:
+Zentrale Token-Gruppen:
 
-- echte Kundendaten
-- echte E-Mail-Adressen
-- echte Website-Domains aus Projekten
-- Tokens
-- Secrets
-- Ports und interne Pfade
-- produktive API-Endpunkte
-- konkrete Runbooks
-- alte Chat- oder Logbuchinhalte
+- Grundflaechen: `--bg`, `--surface`, `--surface-2`, `--surface-3`
+- Linien: `--border`, `--border-strong`
+- Text: `--text-1`, `--text-2`, `--text-3`
+- Akzent: `--accent`, `--accent-soft`
+- Pastellfarben: `--pastel-mint`, `--pastel-sky`, `--pastel-rose`, `--pastel-butter`, `--pastel-peach`, `--pastel-lavender`, `--pastel-sage`
+- Radien: `--radius-sm`, `--radius-md`, `--radius-lg`
+- Schatten: `--shadow`
 
-Wenn aus dieser Vorlage spaeter wieder ein echtes Dashboard wird, sollten echte Daten nur ueber klar getrennte Adapter eingebunden werden. Die UI sollte weiterhin mit Leerzustaenden funktionieren, wenn kein Backend vorhanden ist.
+Wiederverwendbare Klassen:
+
+- `app-shell` fuer die Gesamtschale mit linker Navigation
+- `sidebar` fuer die feste Hauptnavigation
+- `topbar` fuer die obere Kopfzeile
+- `page-wrap` fuer normale Seiteninhalte
+- `two-column-page` fuer Seiten mit zweiter Navigation
+- `section-nav` fuer die sticky Unterseitennavigation
+- `content-panel` fuer die rechte Detailflaeche
+- `dashboard-card` fuer Arbeitskarten
+- `metric` und `metric-grid` fuer Kennzahlen
+- `approval-zone` fuer sichtbare Freigaben
+- `empty-state` fuer neutrale Leerzustaende
+- `chat-surface`, `chat-thread`, `chat-composer` fuer das Chat-Muster
+
+## Einbau eines neuen lokalen Agenten
+
+Die Vorlage kann fuer einen neuen lokalen Agenten genutzt werden, indem die UI zuerst unveraendert bleibt und echte Daten nur hinter klaren Schnittstellen ergaenzt werden.
+
+Empfohlene Reihenfolge:
+
+1. Repo klonen und lokal starten.
+2. Namen, Logo und neutrale Texte anpassen.
+3. Seiten pruefen und nicht benoetigte Bereiche entfernen.
+4. Erst danach Adapter fuer lokale Runtime, Speicher oder Dienste anlegen.
+5. Jeder Adapter liefert Daten in einfache UI-Modelle, zum Beispiel Statuszeilen, Chat-Nachrichten, Logbuchzeilen oder KPI-Werte.
+6. Jede Seite behaelt Leerzustaende, falls der Adapter fehlt oder nicht erreichbar ist.
+7. Aktionen mit Aussenwirkung laufen ueber eine Freigabezone, nicht direkt ueber einen versteckten Klick.
+
+Wichtig: Die UI-Komponenten sollen nicht selbst wissen, woher produktive Daten kommen. Eine echte Anbindung sollte ausserhalb der Seitenlogik gekapselt werden. So bleibt die Blanko-Version sauber und die spaetere produktive Version leichter wartbar.
+
+## Typische Stellen fuer spaetere Adapter
+
+Diese Datei beschreibt nur die Zielstellen. In der Vorlage sind sie nicht umgesetzt.
+
+- Chat: Adapter fuer lokale Agent-Runtime, Streaming und Prozessmeldungen
+- Kontrolle: Adapter fuer Heartbeats, geplante Jobs, Waechter, Skills, Plugins und Verbindungsstatus
+- Workflows: Adapter fuer Pipeline-Zustaende, Freigaben und Aktionshistorie
+- Logbuch: Adapter fuer Audit-Eintraege und Filter
+- Ziele & Ideen: optionaler Speicheradapter statt Browser-Speicherung
+- Website Tracking: Adapter fuer Kennzahlen, Funnel, Top-Seiten und Kampagnen
+
+## Was beim Oeffentlichmachen geprueft wurde
+
+Vor einem oeffentlichen Repo sollte die Vorlage immer gegen diese Liste laufen:
+
+- keine echten Namen oder Projektbegriffe
+- keine echten Mailboxen oder Domains
+- keine Tokens, Secrets oder Umgebungsdateien
+- keine internen Pfade
+- keine Produktiv-Ports
+- keine Proxy- oder Runtime-URLs
+- keine alten Chatverlaeufe
+- keine echten Logbuchzeilen
+- keine echten Website-Kennzahlen
+- keine Kundendaten
+
+Diese Blanko-Version ist genau darauf ausgelegt: Sie zeigt Aufbau, Design und Verhalten, aber keine Inhalte und keine Anschluesse.

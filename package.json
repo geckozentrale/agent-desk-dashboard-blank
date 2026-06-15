@@ -1,6 +1,7 @@
 {
   "name": "agent-desk-dashboard-blank",
   "version": "0.1.0",
+  "description": "Public blank Agent Desk dashboard template with Pastel V2, light and dark themes, page layouts and local demo behavior.",
   "private": false,
   "type": "module",
   "scripts": {
